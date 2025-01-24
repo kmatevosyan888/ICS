@@ -1,0 +1,42 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="16dp">
+
+
+    <TextView
+        android:id="@+id/textICS"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/textV_ICS"
+        android:textColor="@color/purple2"
+        android:textSize="35sp"
+        android:textStyle="bold"/>
+
+    <Button
+        android:id="@+id/btnAddItems"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:text="@string/btn1"
+        android:textSize="20sp"
+        android:layout_marginTop="100dp"/>
+
+    <Button
+        android:id="@+id/btnRemoveItems"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/btn2"
+        android:textSize="20sp"/>
+
+    <Button
+        android:id="@+id/btnViewStock"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/btn3"
+        android:textSize="20sp"/>
+</LinearLayout>

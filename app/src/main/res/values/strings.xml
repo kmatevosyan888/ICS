@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Warehouse</string>
+    <string name="btn1">Добавить товары</string>
+    <string name="btn2">Снять товары со склада</string>
+    <string name="btn3">Остаток товаров</string>
+    <string name="textV_ICS">Система управления инвентаря</string>
+    <string name="edT_Название">Название товара</string>
+    <string name="edT_Штрих">Штрих-код</string>
+    <string name="edT_Количество">Количество</string>
+    <string name="edT_Цена">Цена за штуку</string>
+    <string name="btn_Выводить">Выводить товар</string>
+    <string name="btn_minus">-</string>
+    <string name="btn_plus">+</string>
+    <string name="edT_0">0</string>
+    <string name="btn_Сохранить">Сохранить</string>
+
+
+</resources>
