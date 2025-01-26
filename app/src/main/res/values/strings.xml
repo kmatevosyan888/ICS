@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Warehouse</string>
     <string name="btn1">Добавить товары</string>
-    <string name="btn2">Снять товары со склада</string>
+    <string name="btn2">Снять со склада</string>
     <string name="btn3">Остаток товаров</string>
     <string name="textV_ICS">Система управления инвентаря</string>
     <string name="edT_Название">Название товара</string>

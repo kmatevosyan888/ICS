@@ -6,9 +6,10 @@
 
     <EditText
         android:id="@+id/itemName"
+        android:layout_marginTop="150dp"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:hint="@string/edT_Название"
+        android:hint="@string/edT_Штрих"
         android:inputType="text"
         android:layout_marginBottom="12dp" />
 
@@ -16,7 +17,7 @@
         android:id="@+id/itemBarcodeToRemove"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:hint="@string/edT_Штрих"
+        android:hint="@string/edT_Название"
         android:inputType="text"
         android:layout_marginBottom="12dp" />
 
@@ -41,7 +42,7 @@
 
         <EditText
             android:id="@+id/itemQuantity"
-            android:layout_width="50dp"
+            android:layout_width="100dp"
             android:layout_height="50dp"
             android:importantForAutofill="no"
             android:inputType="number"
