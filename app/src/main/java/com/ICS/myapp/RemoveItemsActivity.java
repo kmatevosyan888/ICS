@@ -1,4 +1,4 @@
-package com.example.warehouse;
+package com.ICS.myapp;
 
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;

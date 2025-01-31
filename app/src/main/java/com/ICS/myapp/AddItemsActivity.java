@@ -1,4 +1,4 @@
-package com.example.warehouse;
+package com.ICS.myapp;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;

@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.warehouse"
+    namespace = "com.ICS.myapp"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.warehouse"
+        applicationId = "com.ICS.myapp"
         minSdk = 26
         targetSdk = 34
         versionCode = 1

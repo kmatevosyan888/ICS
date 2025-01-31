@@ -1,4 +1,4 @@
-package com.example.warehouse;
+package com.ICS.myapp;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
