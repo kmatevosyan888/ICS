@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Warehouse"
+rootProject.name = "ICS"
 include(":app")

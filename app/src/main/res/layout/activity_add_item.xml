@@ -1,78 +1,118 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/white"
     android:orientation="vertical"
-    android:padding="16dp"
-    android:background="@android:color/white">
+    android:padding="16dp">
 
-    <EditText
-        android:layout_marginTop="150dp"
-        android:id="@+id/itemName"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:hint="@string/edT_Штрих"
-        android:autofillHints="name"
-        android:inputType="text"
-        android:layout_marginBottom="12dp" />
+        android:layout_height="wrap_content"
+        android:layout_marginTop="150dp"
+        android:orientation="horizontal">
+
+
+        <EditText
+            android:id="@+id/itemName"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_marginBottom="12dp"
+            android:layout_weight="1"
+            android:autofillHints="name"
+            android:hint="@string/edT_Штрих"
+            android:inputType="text" />
+
+        <Button
+            android:id="@+id/btnScan"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:backgroundTint="@color/white"
+            android:contentDescription="@string/scan_description"
+            android:drawableEnd="@drawable/barcode_reader"
+            android:gravity="center"
+            android:padding="16dp" />
+
+    </LinearLayout>
 
     <EditText
         android:id="@+id/itemBarcode"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:hint="@string/edT_Название"
+        android:layout_marginBottom="12dp"
         android:autofillHints="name"
-        android:inputType="text"
-        android:layout_marginBottom="12dp" />
+        android:hint="@string/edT_Название"
+        android:inputType="text" />
+
+    <Spinner
+        android:id="@+id/currencySpinner"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginTop="8dp"
+        android:entries="@array/currencies"
+        android:minHeight="48dp"
+        android:prompt="@string/select_currency" />
 
     <EditText
         android:id="@+id/itemPrice"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:hint="@string/edT_Цена"
+        android:layout_marginBottom="12dp"
         android:autofillHints="name"
-        android:inputType="numberDecimal"
-        android:layout_marginBottom="12dp" />
+        android:hint="@string/edT_Цена"
+        android:inputType="numberDecimal" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:orientation="vertical">
 
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:layout_weight="1"
             android:text="@string/edT_Количество"
-            android:textSize="18sp"/>
+            android:textSize="18sp" />
 
-        <Button
-            android:id="@+id/btnDecreaseQuantity"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/btn_minus" />
+            android:gravity="center_horizontal"
+            android:orientation="horizontal">
 
-        <EditText
-            android:id="@+id/itemQuantity"
-            android:layout_width="100dp"
-            android:layout_height="50dp"
-            android:inputType="number"
-            android:hint="@string/edT_0"
-            android:gravity="center" />
+            <Button
+                android:id="@+id/btnDecreaseQuantity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/btn_minus" />
 
-        <Button
-            android:id="@+id/btnIncreaseQuantity"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/btn_plus" />
+            <EditText
+                android:id="@+id/itemQuantity"
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:gravity="center"
+                android:inputType="number"
+                android:text="@string/edT_0" />
+
+            <Button
+                android:id="@+id/btnIncreaseQuantity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/btn_plus" />
+        </LinearLayout>
     </LinearLayout>
+
 
     <Button
         android:id="@+id/saveButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/btn_Сохранить"
+        android:layout_gravity="center"
+        android:layout_marginTop="30dp"
         android:backgroundTint="@color/purple1"
-        android:textColor="@android:color/white"
-        android:layout_marginTop="30dp"/>
+        android:text="@string/btn_Сохранить"
+        android:textColor="@android:color/white" />
+
+
 </LinearLayout>

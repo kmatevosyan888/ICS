@@ -1,10 +1,11 @@
-package com.example.warehouse;
+package com.myapp.ICS;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
@@ -39,8 +40,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent stock = new Intent(MainActivity.this, ViewStockActivity.class);
+                startActivity(stock);
             }
         });
+
     }
 
 }

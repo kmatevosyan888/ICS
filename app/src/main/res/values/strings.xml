@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Warehouse</string>
+    <string name="app_name">ICS</string>
     <string name="btn1">Добавить товары</string>
     <string name="btn2">Снять со склада</string>
     <string name="btn3">Остаток товаров</string>
@@ -13,6 +13,12 @@
     <string name="btn_plus">+</string>
     <string name="edT_0">0</string>
     <string name="btn_Сохранить">Сохранить</string>
-
-
+    <string name="scan_description">Сканировать QR или Штрих код</string>
+    <string-array name="currencies">
+        <item>RUB - Российский рубль</item>
+        <item>USD - Доллар США</item>
+        <item>EUR - Евро</item>
+        <item>AMD - Армянский драм</item>
+    </string-array>
+    <string name="select_currency">Выберите валюту</string>
 </resources>

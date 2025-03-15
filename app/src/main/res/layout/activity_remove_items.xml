@@ -4,56 +4,82 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <EditText
-        android:id="@+id/itemName"
-        android:layout_marginTop="150dp"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:hint="@string/edT_Штрих"
-        android:inputType="text"
-        android:layout_marginBottom="12dp" />
+        android:layout_height="wrap_content"
+        android:layout_marginTop="150dp"
+        android:orientation="horizontal">
 
+
+        <EditText
+            android:id="@+id/itemName"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:hint="@string/edT_Штрих"
+            android:layout_marginBottom="12dp"
+            android:inputType="text" />
+
+        <Button
+            android:id="@+id/btnScan"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:backgroundTint="@color/white"
+            android:drawableEnd="@drawable/barcode_reader"
+            android:gravity="center"
+            android:padding="16dp"
+            android:contentDescription="@string/scan_description"/>
+
+    </LinearLayout>
     <EditText
         android:id="@+id/itemBarcodeToRemove"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:hint="@string/edT_Название"
+        android:autofillHints="name"
         android:inputType="text"
         android:layout_marginBottom="12dp" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:gravity="center_vertical">
 
         <TextView
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/edT_Количество"
+            android:layout_gravity="center"
             android:textSize="18sp"/>
 
-        <Button
-            android:id="@+id/btnDecreaseQuantity"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/btn_minus" />
+            android:orientation="horizontal"
+            android:gravity="center_horizontal">
 
-        <EditText
-            android:id="@+id/itemQuantity"
-            android:layout_width="100dp"
-            android:layout_height="50dp"
-            android:importantForAutofill="no"
-            android:inputType="number"
-            android:text="@string/edT_0"
-            android:gravity="center" />
+            <Button
+                android:id="@+id/btnDecreaseQuantity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/btn_minus"/>
 
-        <Button
-            android:id="@+id/btnIncreaseQuantity"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/btn_plus" />
+            <EditText
+                android:id="@+id/itemQuantity"
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:inputType="number"
+                android:text="@string/edT_0"
+                android:gravity="center" />
+
+            <Button
+                android:id="@+id/btnIncreaseQuantity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/btn_plus" />
+        </LinearLayout>
     </LinearLayout>
 
     <Button

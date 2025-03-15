@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.warehouse"
+    namespace = "com.myapp.ICS"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.warehouse"
+        applicationId = "com.myapp.ICS"
         minSdk = 26
         targetSdk = 34
         versionCode = 1
@@ -37,7 +37,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
-    implementation("androidx.recyclerview:recyclerview:1.4.0")
+    implementation(libs.recyclerview)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

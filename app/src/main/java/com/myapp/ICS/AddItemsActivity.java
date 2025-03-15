@@ -1,13 +1,12 @@
-package com.example.warehouse;
+package com.myapp.ICS;
 
-import android.content.ContentValues;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 public class AddItemsActivity extends AppCompatActivity {
     public EditText itemName, itemBarcode, itemPrice, itemQuantity;
     public Button saveButton, increaseButton, decreaseButton;
+    private Spinner currencySpinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +28,7 @@ public class AddItemsActivity extends AppCompatActivity {
         saveButton = findViewById(R.id.saveButton);
         increaseButton = findViewById(R.id.btnIncreaseQuantity);
         decreaseButton = findViewById(R.id.btnDecreaseQuantity);
+        currencySpinner = findViewById(R.id.currencySpinner);
 
 
         saveButton.setOnClickListener(v -> saveItemToDatabase());
@@ -48,15 +49,21 @@ public class AddItemsActivity extends AppCompatActivity {
                 }
             }
         });
-    }
 
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+                this, R.array.currencies, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        currencySpinner.setAdapter(adapter);
+
+    }
     public void saveItemToDatabase() {
         String name = itemName.getText().toString();
         String barcode = itemBarcode.getText().toString();
         String priceText = itemPrice.getText().toString();
         String quantityText = itemQuantity.getText().toString();
+        String selectedCurrency = currencySpinner.getSelectedItem().toString().split(" ")[0];
 
-        if (name.isEmpty() || barcode.isEmpty() || priceText.isEmpty() || quantityText.isEmpty()) {
+        if (TextUtils.isEmpty(name) || TextUtils.isEmpty(barcode) || TextUtils.isEmpty(priceText) || TextUtils.isEmpty(quantityText)) {
             Toast.makeText(this, "Заполните все поля", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -73,31 +80,24 @@ public class AddItemsActivity extends AppCompatActivity {
         }
 
         DatabaseHelper databaseHelper = new DatabaseHelper(this);
-        SQLiteDatabase db = databaseHelper.getWritableDatabase();
+        boolean isInserted = databaseHelper.addItem(name, barcode, price, quantity, selectedCurrency);
 
-        ContentValues values = new ContentValues();
-        values.put("name", name);
-        values.put("barcode", barcode);
-        values.put("price", price);
-        values.put("quantity", quantity);
-
-        long newRowId = db.insert("items", null, values);
-
-        if (newRowId != -1) {
+        if (isInserted) {
             Toast.makeText(this, "Товар успешно добавлен", Toast.LENGTH_SHORT).show();
             clearFields();
         } else {
             Toast.makeText(this, "Ошибка добавления товара", Toast.LENGTH_SHORT).show();
         }
-
-        db.close();
     }
+
+
 
     private void clearFields() {
         itemName.setText("");
         itemBarcode.setText("");
         itemPrice.setText("");
         itemQuantity.setText("0");
+        currencySpinner.setSelection(0);
     }
 
     public int getQuantityFromEditText() {
@@ -111,31 +111,4 @@ public class AddItemsActivity extends AppCompatActivity {
             return 0;
         }
     }
-
-    public static class DatabaseHelper extends SQLiteOpenHelper {
-        public static final String DATABASE_NAME = "warehouse.db";
-        public static final int DATABASE_VERSION = 1;
-
-        public DatabaseHelper(AddItemsActivity context) {
-            super(context, DATABASE_NAME, null, DATABASE_VERSION);
-        }
-
-        @Override
-        public void onCreate(SQLiteDatabase db) {
-            String createTable = "CREATE TABLE items (" +
-                    "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    "name TEXT NOT NULL, " +
-                    "barcode TEXT NOT NULL UNIQUE, " +
-                    "price REAL NOT NULL, " +
-                    "quantity INTEGER NOT NULL);";
-            db.execSQL(createTable);
-        }
-
-        @Override
-        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            db.execSQL("DROP TABLE IF EXISTS items");
-            onCreate(db);
-        }
-    }
-
 }

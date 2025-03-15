@@ -1,4 +1,4 @@
-package com.example.warehouse;
+package com.myapp.ICS;
 
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -14,7 +13,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class RemoveItemsActivity extends AppCompatActivity {
-    public EditText itemBarcodeToRemove, itemQuantity;
+    public EditText itemBarcodeToRemove, itemName, itemQuantity;
     public Button removeButton, increaseButton, decreaseButton;
 
     @Override
@@ -95,6 +94,7 @@ public class RemoveItemsActivity extends AppCompatActivity {
 
     private void clearFields() {
         itemBarcodeToRemove.setText("");
+        itemName.setText("");
         itemQuantity.setText("0");
     }
 
@@ -107,32 +107,6 @@ public class RemoveItemsActivity extends AppCompatActivity {
             return Integer.parseInt(quantityText);
         } catch (NumberFormatException e) {
             return 0;
-        }
-    }
-
-    public static class DatabaseHelper extends android.database.sqlite.SQLiteOpenHelper {
-        public static final String DATABASE_NAME = "warehouse.db";
-        public static final int DATABASE_VERSION = 1;
-
-        public DatabaseHelper(RemoveItemsActivity context) {
-            super(context, DATABASE_NAME, null, DATABASE_VERSION);
-        }
-
-        @Override
-        public void onCreate(SQLiteDatabase db) {
-            String createTable = "CREATE TABLE items (" +
-                    "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    "name TEXT NOT NULL, " +
-                    "barcode TEXT NOT NULL UNIQUE, " +
-                    "price REAL NOT NULL, " +
-                    "quantity INTEGER NOT NULL);";
-            db.execSQL(createTable);
-        }
-
-        @Override
-        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            db.execSQL("DROP TABLE IF EXISTS items");
-            onCreate(db);
         }
     }
 }

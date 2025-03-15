@@ -1,4 +1,4 @@
-package com.example.warehouse;
+package com.myapp.ICS;
 
 import android.content.Context;
 
