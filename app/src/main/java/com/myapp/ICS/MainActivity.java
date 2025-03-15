@@ -1,4 +1,8 @@
+<<<<<<<< HEAD:app/src/main/java/com/myapp/ICS/MainActivity.java
 package com.myapp.ICS;
+========
+package com.ICS.myapp;
+>>>>>>>> origin/main:app/src/main/java/com/ICS/myapp/MainActivity.java
 
 import android.annotation.SuppressLint;
 import android.content.Intent;

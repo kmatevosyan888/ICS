@@ -1,4 +1,8 @@
+<<<<<<<< HEAD:app/src/main/java/com/myapp/ICS/AddItemsActivity.java
 package com.myapp.ICS;
+========
+package com.ICS.myapp;
+>>>>>>>> origin/main:app/src/main/java/com/ICS/myapp/AddItemsActivity.java
 
 import android.os.Bundle;
 import android.text.TextUtils;

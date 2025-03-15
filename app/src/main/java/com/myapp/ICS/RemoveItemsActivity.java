@@ -1,4 +1,8 @@
+<<<<<<<< HEAD:app/src/main/java/com/myapp/ICS/RemoveItemsActivity.java
 package com.myapp.ICS;
+========
+package com.ICS.myapp;
+>>>>>>>> origin/main:app/src/main/java/com/ICS/myapp/RemoveItemsActivity.java
 
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
