@@ -1,6 +1,7 @@
 package com.myapp.ICS;
 
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -8,22 +9,50 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class RemoveItemsActivity extends AppCompatActivity {
     private EditText itemBarcodeToRemove, itemName, itemQuantity;
+    private DatabaseHelper dbHelper;
+    private Item currentItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_remove_items);
 
+        dbHelper = new DatabaseHelper(this);
         initViews();
         setupQuantityButtons();
+        setupBarcodeListener();
     }
 
     private void initViews() {
         itemBarcodeToRemove = findViewById(R.id.itemBarcodeToRemove);
         itemName = findViewById(R.id.itemName);
         itemQuantity = findViewById(R.id.itemQuantity);
+
         Button removeButton = findViewById(R.id.removeButton);
         removeButton.setOnClickListener(v -> removeItem());
+    }
+
+    private void setupBarcodeListener() {
+        itemBarcodeToRemove.setOnFocusChangeListener((v, hasFocus) -> {
+            if (!hasFocus) {
+                checkBarcodeAndLoadName();
+            }
+        });
+    }
+
+    private void checkBarcodeAndLoadName() {
+        String barcode = itemBarcodeToRemove.getText().toString().trim();
+        if (!barcode.isEmpty()) {
+            currentItem = dbHelper.getItemByBarcode(barcode);
+            if (currentItem != null) {
+                itemName.setText(currentItem.getName());
+                itemQuantity.setText("1");
+            } else {
+                itemName.setText("");
+                itemQuantity.setText("0");
+                showError("Товар не найден");
+            }
+        }
     }
 
     private void setupQuantityButtons() {
@@ -44,20 +73,34 @@ public class RemoveItemsActivity extends AppCompatActivity {
     private void removeItem() {
         String barcode = itemBarcodeToRemove.getText().toString().trim();
         int quantity = getCurrentQuantity();
+        String enteredName = itemName.getText().toString().trim();
 
         if (barcode.isEmpty()) {
-            Toast.makeText(this, "Введите штрих-код", Toast.LENGTH_SHORT).show();
+            showError("Введите штрих-код");
             return;
         }
 
-        DatabaseHelper dbHelper = new DatabaseHelper(this);
-        boolean success = dbHelper.removeItem(barcode, quantity);
+        if (currentItem == null) {
+            showError("Сначала найдите товар по штрих-коду");
+            return;
+        }
 
+        if (!currentItem.getName().equalsIgnoreCase(enteredName)) {
+            showError("Название не совпадает!\nОжидается: " + currentItem.getName());
+            return;
+        }
+
+        if (currentItem.getQuantity() < quantity) {
+            showError("Недостаточно товара\nДоступно: " + currentItem.getQuantity());
+            return;
+        }
+
+        boolean success = dbHelper.removeItem(barcode, quantity);
         if (success) {
-            Toast.makeText(this, "Товар списан", Toast.LENGTH_SHORT).show();
+            showSuccess("Товар списан");
             clearFields();
         } else {
-            Toast.makeText(this, "Ошибка списания", Toast.LENGTH_SHORT).show();
+            showError("Ошибка списания");
         }
     }
 
@@ -69,9 +112,18 @@ public class RemoveItemsActivity extends AppCompatActivity {
         }
     }
 
+    private void showError(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+    }
+
+    private void showSuccess(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
     private void clearFields() {
         itemBarcodeToRemove.getText().clear();
-        itemQuantity.setText("0");
         itemName.getText().clear();
+        itemQuantity.setText("0");
+        currentItem = null;
     }
 }

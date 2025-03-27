@@ -25,7 +25,7 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:backgroundTint="@color/white"
-            android:drawableEnd="@drawable/barcode_reader"
+            android:drawableEnd="@drawable/ic_qr"
             android:gravity="center"
             android:padding="16dp"
             android:contentDescription="@string/scan_description"/>
