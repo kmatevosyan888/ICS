@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:app/src/main/java/com/myapp/ICS/ScannerActivity.java
 package com.myapp.ICS;
-========
-package com.ICS.myapp;
->>>>>>>> origin/main:app/src/main/java/com/ICS/myapp/ViewStockActivity.java
 
 import android.os.Bundle;
 

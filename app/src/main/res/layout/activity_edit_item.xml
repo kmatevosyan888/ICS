@@ -1,0 +1,49 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/etEditName"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginBottom="12dp"
+        android:hint="@string/edT_Название"
+        android:inputType="text"/>
+
+    <EditText
+        android:id="@+id/etEditPrice"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginBottom="12dp"
+        android:hint="@string/edT_Цена"
+        android:inputType="numberDecimal"/>
+
+    <EditText
+        android:id="@+id/etEditQuantity"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:hint="@string/edT_Количество"
+        android:layout_marginBottom="12dp"
+        android:inputType="number"/>
+
+    <Spinner
+        android:id="@+id/spinnerEditCurrency"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginTop="8dp"
+        android:entries="@array/currencies"
+        android:minHeight="48dp"
+        android:prompt="@string/select_currency" />
+
+    <Button
+        android:id="@+id/btnSaveChanges"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="30dp"
+        android:backgroundTint="@color/purple1"
+        android:textColor="@android:color/white"
+        android:text="@string/btn_Сохранить_изменения"/>
+
+</LinearLayout>

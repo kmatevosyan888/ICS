@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:app/src/androidTest/java/com/myapp/ICS/ExampleInstrumentedTest.java
 package com.myapp.ICS;
-========
-package com.ICS.myapp;
->>>>>>>> origin/main:app/src/androidTest/java/com/ICS/myapp/ExampleInstrumentedTest.java
 
 import android.content.Context;
 

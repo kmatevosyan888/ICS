@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:app/src/test/java/com/myapp/ICS/ExampleUnitTest.java
 package com.myapp.ICS;
-========
-package com.ICS.myapp;
->>>>>>>> origin/main:app/src/test/java/com/ICS/myapp/ExampleUnitTest.java
 
 import org.junit.Test;
 

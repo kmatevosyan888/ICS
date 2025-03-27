@@ -13,6 +13,7 @@
     <string name="btn_plus">+</string>
     <string name="edT_0">0</string>
     <string name="btn_Сохранить">Сохранить</string>
+    <string name="btn_Сохранить_изменения">Сохранить изменения</string>
     <string name="scan_description">Сканировать QR или Штрих код</string>
     <string-array name="currencies">
         <item>RUB - Российский рубль</item>
@@ -21,4 +22,6 @@
         <item>AMD - Армянский драм</item>
     </string-array>
     <string name="select_currency">Выберите валюту</string>
+    <string name="edit_item">Редактировать товар</string>
+    <string name="delete_item">Удалить товар</string>
 </resources>

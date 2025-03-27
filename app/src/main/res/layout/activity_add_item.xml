@@ -13,7 +13,7 @@
 
 
         <EditText
-            android:id="@+id/itemName"
+            android:id="@+id/itemBarcode"
             android:layout_width="0dp"
             android:layout_height="50dp"
             android:layout_marginBottom="12dp"
@@ -35,7 +35,7 @@
     </LinearLayout>
 
     <EditText
-        android:id="@+id/itemBarcode"
+        android:id="@+id/itemName"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_marginBottom="12dp"
@@ -110,8 +110,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="30dp"
-        android:backgroundTint="@color/purple1"
         android:text="@string/btn_Сохранить"
+        android:backgroundTint="@color/purple1"
         android:textColor="@android:color/white" />
 
 

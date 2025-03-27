@@ -4,11 +4,7 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import java.util.LinkedList;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Spinner;
+import java.util.List;
 import android.widget.Toast;
 
 public class ViewStockActivity extends AppCompatActivity {
@@ -22,18 +18,17 @@ public class ViewStockActivity extends AppCompatActivity {
         setContentView(R.layout.activity_view_stock);
 
         dbHelper = new DatabaseHelper(this);
-
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        updateStockList();
+        loadItems();
     }
 
-    private void updateStockList() {
-        LinkedList<Item> items = dbHelper.getAllItemsList();
+    private void loadItems() {
+        List<Item> items = dbHelper.getAllItemsList();
 
         if (adapter == null) {
-            adapter = new StockAdapter(items);
+            adapter = new StockAdapter(items, this::refreshData);
             recyclerView.setAdapter(adapter);
         } else {
             adapter.updateList(items);
@@ -44,9 +39,13 @@ public class ViewStockActivity extends AppCompatActivity {
         }
     }
 
+    private void refreshData() {
+        loadItems();
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
-        updateStockList();
+        loadItems();
     }
 }

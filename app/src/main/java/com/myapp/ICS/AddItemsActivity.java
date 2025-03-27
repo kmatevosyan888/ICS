@@ -1,23 +1,16 @@
-<<<<<<<< HEAD:app/src/main/java/com/myapp/ICS/AddItemsActivity.java
 package com.myapp.ICS;
-========
-package com.ICS.myapp;
->>>>>>>> origin/main:app/src/main/java/com/ICS/myapp/AddItemsActivity.java
 
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
 
 public class AddItemsActivity extends AppCompatActivity {
-    public EditText itemName, itemBarcode, itemPrice, itemQuantity;
-    public Button saveButton, increaseButton, decreaseButton;
+    private EditText itemName, itemBarcode, itemPrice, itemQuantity;
     private Spinner currencySpinner;
 
     @Override
@@ -25,94 +18,121 @@ public class AddItemsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_item);
 
+        initViews();
+        setupCurrencySpinner();
+        setupQuantityButtons();
+    }
+
+    private void initViews() {
         itemName = findViewById(R.id.itemName);
         itemBarcode = findViewById(R.id.itemBarcode);
         itemPrice = findViewById(R.id.itemPrice);
         itemQuantity = findViewById(R.id.itemQuantity);
-        saveButton = findViewById(R.id.saveButton);
-        increaseButton = findViewById(R.id.btnIncreaseQuantity);
-        decreaseButton = findViewById(R.id.btnDecreaseQuantity);
         currencySpinner = findViewById(R.id.currencySpinner);
-
-
+        Button saveButton = findViewById(R.id.saveButton);
         saveButton.setOnClickListener(v -> saveItemToDatabase());
+    }
 
-        increaseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int quantity = getQuantityFromEditText();
-                itemQuantity.setText(String.valueOf(quantity + 1));
-            }
-        });
-        decreaseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int quantity = getQuantityFromEditText();
-                if (quantity > 0) {
-                    itemQuantity.setText(String.valueOf(quantity - 1));
-                }
-            }
-        });
-
+    private void setupCurrencySpinner() {
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
                 this, R.array.currencies, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         currencySpinner.setAdapter(adapter);
-
     }
-    public void saveItemToDatabase() {
-        String name = itemName.getText().toString();
-        String barcode = itemBarcode.getText().toString();
-        String priceText = itemPrice.getText().toString();
-        String quantityText = itemQuantity.getText().toString();
-        String selectedCurrency = currencySpinner.getSelectedItem().toString().split(" ")[0];
 
-        if (TextUtils.isEmpty(name) || TextUtils.isEmpty(barcode) || TextUtils.isEmpty(priceText) || TextUtils.isEmpty(quantityText)) {
-            Toast.makeText(this, "Заполните все поля", Toast.LENGTH_SHORT).show();
-            return;
+    private void setupQuantityButtons() {
+        Button increaseButton = findViewById(R.id.btnIncreaseQuantity);
+        Button decreaseButton = findViewById(R.id.btnDecreaseQuantity);
+
+        increaseButton.setOnClickListener(v -> adjustQuantity(1));
+        decreaseButton.setOnClickListener(v -> adjustQuantity(-1));
+    }
+
+    private void adjustQuantity(int delta) {
+        int quantity = getCurrentQuantity() + delta;
+        if (quantity >= 0) {
+            itemQuantity.setText(String.valueOf(quantity));
+        }
+    }
+
+    private void saveItemToDatabase() {
+        if (!validateInput()) return;
+
+        DatabaseHelper dbHelper = new DatabaseHelper(this);
+        boolean success = dbHelper.addItem(
+                itemName.getText().toString(),
+                itemBarcode.getText().toString(),
+                Double.parseDouble(itemPrice.getText().toString()),
+                getCurrentQuantity(),
+                currencySpinner.getSelectedItem().toString().split(" ")[0]
+        );
+
+        showResult(success);
+    }
+
+    private boolean validateInput() {
+        // Проверка названия
+        if (TextUtils.isEmpty(itemName.getText())) {
+            showError("Введите название");
+            return false;
         }
 
-        double price;
-        int quantity;
+        // Проверка штрих-кода
+        if (TextUtils.isEmpty(itemBarcode.getText())) {
+            showError("Введите штрих-код");
+            return false;
+        }
 
+        // Проверка цены
+        if (TextUtils.isEmpty(itemPrice.getText())) {
+            showError("Введите цену");
+            return false;
+        }
         try {
-            price = Double.parseDouble(priceText);
-            quantity = Integer.parseInt(quantityText);
+            double price = Double.parseDouble(itemPrice.getText().toString());
+            if (price < 0) {
+                showError("Цена не может быть отрицательной");
+                return false;
+            }
         } catch (NumberFormatException e) {
-            Toast.makeText(this, "Введите корректные данные для цены и количества", Toast.LENGTH_SHORT).show();
-            return;
+            showError("Некорректная цена");
+            return false;
         }
 
-        DatabaseHelper databaseHelper = new DatabaseHelper(this);
-        boolean isInserted = databaseHelper.addItem(name, barcode, price, quantity, selectedCurrency);
+        // Проверка количества
+        int quantity = getCurrentQuantity();
+        if (quantity < 0) {
+            showError("Количество не может быть отрицательным");
+            return false;
+        }
+        return true;
+    }
+    private int getCurrentQuantity() {
+        try {
+            return Integer.parseInt(itemQuantity.getText().toString());
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
 
-        if (isInserted) {
-            Toast.makeText(this, "Товар успешно добавлен", Toast.LENGTH_SHORT).show();
+    private void showError(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    private void showResult(boolean success) {
+        if (success) {
+            Toast.makeText(this, "Товар добавлен", Toast.LENGTH_SHORT).show();
             clearFields();
         } else {
-            Toast.makeText(this, "Ошибка добавления товара", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Ошибка добавления", Toast.LENGTH_SHORT).show();
         }
     }
-
-
 
     private void clearFields() {
-        itemName.setText("");
-        itemBarcode.setText("");
-        itemPrice.setText("");
+        itemName.getText().clear();
+        itemBarcode.getText().clear();
+        itemPrice.getText().clear();
         itemQuantity.setText("0");
         currencySpinner.setSelection(0);
-    }
-
-    public int getQuantityFromEditText() {
-        String quantityText = itemQuantity.getText().toString();
-        if (TextUtils.isEmpty(quantityText)) {
-            return 0;
-        }
-        try {
-            return Integer.parseInt(quantityText);
-        } catch (NumberFormatException e) {
-            return 0;
-        }
     }
 }
