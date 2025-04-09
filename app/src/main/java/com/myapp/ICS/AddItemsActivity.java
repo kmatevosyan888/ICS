@@ -1,5 +1,6 @@
 package com.myapp.ICS;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.ArrayAdapter;
@@ -10,6 +11,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class AddItemsActivity extends AppCompatActivity {
+    private static final int SCAN_REQUEST_CODE = 1001;
+
     private EditText itemName, itemBarcode, itemPrice, itemQuantity;
     private Spinner currencySpinner;
 
@@ -31,8 +34,23 @@ public class AddItemsActivity extends AppCompatActivity {
         currencySpinner = findViewById(R.id.currencySpinner);
         Button saveButton = findViewById(R.id.saveButton);
         saveButton.setOnClickListener(v -> saveItemToDatabase());
+        Button scanButton = findViewById(R.id.btnScanAdd);
+        scanButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, ScannerActivity.class);
+            startActivityForResult(intent, SCAN_REQUEST_CODE);
+        });
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == SCAN_REQUEST_CODE && resultCode == RESULT_OK) {
+            if (data != null) {
+                String result = data.getStringExtra(ScannerActivity.SCAN_RESULT);
+                itemBarcode.setText(result);
+            }
+        }
+    }
     private void setupCurrencySpinner() {
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
                 this, R.array.currencies, android.R.layout.simple_spinner_item);

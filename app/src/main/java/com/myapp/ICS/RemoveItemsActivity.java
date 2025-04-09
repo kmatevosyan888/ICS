@@ -1,5 +1,6 @@
 package com.myapp.ICS;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -8,6 +9,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class RemoveItemsActivity extends AppCompatActivity {
+    private static final int SCAN_REQUEST_CODE = 1002;
+
     private EditText itemBarcodeToRemove, itemName, itemQuantity;
     private DatabaseHelper dbHelper;
     private Item currentItem;
@@ -27,9 +30,25 @@ public class RemoveItemsActivity extends AppCompatActivity {
         itemBarcodeToRemove = findViewById(R.id.itemBarcodeToRemove);
         itemName = findViewById(R.id.itemName);
         itemQuantity = findViewById(R.id.itemQuantity);
-
         Button removeButton = findViewById(R.id.removeButton);
         removeButton.setOnClickListener(v -> removeItem());
+        Button scanButton = findViewById(R.id.btnScanRemove);
+        scanButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, ScannerActivity.class);
+            startActivityForResult(intent, SCAN_REQUEST_CODE);
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == SCAN_REQUEST_CODE && resultCode == RESULT_OK) {
+            if (data != null) {
+                String result = data.getStringExtra(ScannerActivity.SCAN_RESULT);
+                itemBarcodeToRemove.setText(result);
+                checkBarcodeAndLoadName();
+            }
+        }
     }
 
     private void setupBarcodeListener() {

@@ -37,6 +37,17 @@ public class ViewStockActivity extends AppCompatActivity {
         if (items.isEmpty()) {
             Toast.makeText(this, "Склад пуст. Добавьте товары!", Toast.LENGTH_SHORT).show();
         }
+        if (adapter == null) {
+            adapter = new StockAdapter(items, new StockAdapter.DataUpdateListener() {
+                @Override
+                public void onDataUpdated() {
+                    loadItems();
+                }
+            });
+            recyclerView.setAdapter(adapter);
+        } else {
+            adapter.updateList(items);
+        }
     }
 
     private void refreshData() {

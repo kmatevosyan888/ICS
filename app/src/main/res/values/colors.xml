@@ -5,5 +5,7 @@
     <color name="purple1">#4E4075</color>
     <color name="purple2">#6F5CAD</color>
     <color name="brown">#E96A3115</color>
+    <color name="flash_icon_tint">#80FFFFFF</color>
+    <color name="flash_active_tint">#FFD700</color>
 
 </resources>

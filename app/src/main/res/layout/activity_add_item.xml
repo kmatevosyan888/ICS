@@ -19,11 +19,11 @@
             android:layout_marginBottom="12dp"
             android:layout_weight="1"
             android:autofillHints="name"
-            android:hint="@string/edT_Штрих"
+            android:hint="@string/edT_Код"
             android:inputType="text" />
 
         <Button
-            android:id="@+id/btnScan"
+            android:id="@+id/btnScanAdd"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:backgroundTint="@color/white"

@@ -16,19 +16,19 @@
             android:layout_width="0dp"
             android:layout_height="50dp"
             android:layout_weight="1"
-            android:hint="@string/edT_Штрих"
+            android:hint="@string/edT_Код"
             android:layout_marginBottom="12dp"
             android:inputType="text" />
 
         <Button
-            android:id="@+id/btnScan"
+            android:id="@+id/btnScanRemove"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:backgroundTint="@color/white"
+            android:contentDescription="@string/scan_description"
             android:drawableEnd="@drawable/ic_qr"
             android:gravity="center"
-            android:padding="16dp"
-            android:contentDescription="@string/scan_description"/>
+            android:padding="16dp" />
 
     </LinearLayout>
     <EditText
