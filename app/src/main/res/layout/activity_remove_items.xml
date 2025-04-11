@@ -32,7 +32,7 @@
 
     </LinearLayout>
     <EditText
-        android:id="@+id/itemName"
+        android:id="@+id/itemNameRemove"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:hint="@string/edT_Название"

@@ -27,7 +27,7 @@ public class AddItemsActivity extends AppCompatActivity {
     }
 
     private void initViews() {
-        itemName = findViewById(R.id.itemName);
+        itemName = findViewById(R.id.itemNameAdd);
         itemBarcode = findViewById(R.id.itemBarcode);
         itemPrice = findViewById(R.id.itemPrice);
         itemQuantity = findViewById(R.id.itemQuantity);

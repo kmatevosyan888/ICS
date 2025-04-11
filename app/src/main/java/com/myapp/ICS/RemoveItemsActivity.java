@@ -28,7 +28,7 @@ public class RemoveItemsActivity extends AppCompatActivity {
 
     private void initViews() {
         itemBarcodeToRemove = findViewById(R.id.itemBarcodeToRemove);
-        itemName = findViewById(R.id.itemName);
+        itemName = findViewById(R.id.itemNameRemove);
         itemQuantity = findViewById(R.id.itemQuantity);
         Button removeButton = findViewById(R.id.removeButton);
         removeButton.setOnClickListener(v -> removeItem());
