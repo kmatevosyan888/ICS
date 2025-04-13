@@ -179,5 +179,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.close();
         }
     }
+    @Override
+    public SQLiteDatabase getReadableDatabase() {
+        return super.getReadableDatabase();
+    }
 
+    @Override
+    public SQLiteDatabase getWritableDatabase() {
+        return super.getWritableDatabase();
+    }
 }

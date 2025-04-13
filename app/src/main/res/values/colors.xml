@@ -7,5 +7,5 @@
     <color name="brown">#E96A3115</color>
     <color name="flash_icon_tint">#80FFFFFF</color>
     <color name="flash_active_tint">#FFD700</color>
-
+    <color name="button_background">#6F5CAD</color>
 </resources>
