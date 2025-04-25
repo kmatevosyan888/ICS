@@ -9,4 +9,5 @@
     <style name="AppButton" parent="Widget.MaterialComponents.Button">
         <item name="android:backgroundTint">@color/purple1</item>
         <item name="android:textColor">@android:color/white</item>
-    </style></resources>
+    </style>
+</resources>

@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.Manifest;
 import androidx.activity.result.ActivityResultLauncher;
@@ -15,12 +16,16 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
+
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
 public class ViewStockActivity extends AppCompatActivity {
+    private static final String TAG = "ViewStockActivity";
+
     private RecyclerView recyclerView;
     private StockAdapter adapter;
     private DatabaseHelper dbHelper;
@@ -85,18 +90,6 @@ public class ViewStockActivity extends AppCompatActivity {
         super.onResume();
         loadItems();
     }
-    private void checkStoragePermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(
-                    this,
-                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                    101
-            );
-        } else {
-            importLauncher.launch("text/comma-separated-values");
-        }
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -130,18 +123,6 @@ public class ViewStockActivity extends AppCompatActivity {
         startActivity(Intent.createChooser(shareIntent, "Экспортировать в..."));
     }
 
-    private void handleImport(Uri uri) {
-        showProgress(true);
-        new Thread(() -> {
-            int result = new CsvHelper(ViewStockActivity.this).importFromCsv(uri);
-            runOnUiThread(() -> {
-                showProgress(false);
-                showImportResult(result);
-                loadItems();
-            });
-        }).start();
-    }
-
     private void showImportResult(int result) {
         String message;
         switch (result) {
@@ -160,5 +141,72 @@ public class ViewStockActivity extends AppCompatActivity {
 
     private void showProgress(boolean show) {
         progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
+    }
+
+    private void checkStoragePermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            // Для Android 10+ (API 29) и выше
+            importLauncher.launch("*/*"); // Запускаем без проверки разрешений
+        } else {
+            // Для версий ниже Android 10
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(
+                        this,
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                        101
+                );
+            } else {
+                importLauncher.launch("*/*"); // Исправленный MIME-тип
+            }
+        }
+        Log.d(TAG, "checkStoragePermission() called");
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            Log.d(TAG, "Permission not granted, requesting...");
+            ActivityCompat.requestPermissions(
+                    this,
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                    101
+            );
+        } else {
+            Log.d(TAG, "Permission already granted, launching file picker");
+            importLauncher.launch("text/comma-separated-values");
+        }
+    }
+
+    private void handleImport(Uri uri) {
+        Log.d(TAG, "handleImport() called with URI: " + uri);
+        if (uri == null) {
+            Log.e(TAG, "Received null URI");
+            Toast.makeText(this, "Файл не выбран", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String mimeType = getContentResolver().getType(uri);
+        if (mimeType == null || !mimeType.startsWith("text/")) {
+            Toast.makeText(this, "Некорректный тип файла", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        showProgress(true);
+        new Thread(() -> {
+            try {
+                Log.d(TAG, "Starting import process...");
+                int result = new CsvHelper(ViewStockActivity.this).importFromCsv(uri);
+                Log.d(TAG, "Import result: " + result);
+
+                runOnUiThread(() -> {
+                    showProgress(false);
+                    showImportResult(result);
+                    loadItems();
+                });
+            } catch (Exception e) {
+                Log.e(TAG, "Error during import: " + e.getMessage(), e);
+                runOnUiThread(() -> {
+                    showProgress(false);
+                    Toast.makeText(this, "Ошибка импорта: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                });
+            }
+        }).start();
     }
 }

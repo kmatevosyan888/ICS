@@ -140,14 +140,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public boolean updateItem(String barcode, String newName, double newPrice,
                               int newQuantity, String newCurrency) {
-        SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-
         values.put(COLUMN_NAME, newName);
         values.put(COLUMN_PRICE, newPrice);
         values.put(COLUMN_QUANTITY, newQuantity);
         values.put(COLUMN_CURRENCY, newCurrency);
-
+        SQLiteDatabase db = this.getWritableDatabase();
         try {
             int result = db.update(TABLE_ITEMS, values,
                     COLUMN_BARCODE + " = ?", new String[]{barcode});

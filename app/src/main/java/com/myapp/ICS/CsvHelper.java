@@ -66,46 +66,63 @@ public class CsvHelper {
     }
 
     public int importFromCsv(Uri uri) {
+        Log.d(TAG, "importFromCsv() called with URI: " + uri);
         int importedCount = 0;
         try (InputStream inputStream = context.getContentResolver().openInputStream(uri);
              BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
 
+            Log.d(TAG, "Opened input stream successfully");
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             db.beginTransaction();
             String line;
             boolean isFirstLine = true;
+            int lineNumber = 0;
 
             while ((line = reader.readLine()) != null) {
+                lineNumber++;
+                Log.d(TAG, "Processing line " + lineNumber + ": " + line);
                 if (isFirstLine) {
                     isFirstLine = false;
                     continue;
                 }
 
+                if (line.trim().isEmpty()) {
+                    Log.w(TAG, "Skipping empty line");
+                    continue;
+                }
+
                 String[] columns = line.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
-                if (columns.length != 5) continue;
+                if (columns.length != 5) {
+                    Log.e(TAG, "Invalid columns count: " + columns.length + " in line: " + line);
+                    continue;
+                }
 
                 try {
                     ContentValues values = new ContentValues();
-                    values.put("barcode", columns[0].replace("\"", ""));
-                    values.put("name", columns[1].replace("\"", ""));
-                    values.put("price", Double.parseDouble(columns[2]));
-                    values.put("quantity", Integer.parseInt(columns[3]));
-                    values.put("currency", columns[4].replace("\"", ""));
+                    values.put("barcode", columns[0].replace("\"", "").trim());
+                    values.put("name", columns[1].replace("\"", "").trim());
+                    values.put("price", Double.parseDouble(columns[2].trim()));
+                    values.put("quantity", Integer.parseInt(columns[3].trim()));
+                    values.put("currency", columns[4].replace("\"", "").trim());
 
                     long id = db.insertWithOnConflict("items", null, values,
                             SQLiteDatabase.CONFLICT_REPLACE);
-                    if (id != -1) importedCount++;
+                    if (id != -1) {
+                        importedCount++;
+                        Log.d(TAG, "Successfully imported item: " + values);
+                    }
                 } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
-                    Log.e(TAG, "Error parsing line: " + line, e);
+                    Log.e(TAG, "Error parsing line " + lineNumber + ": " + e.getMessage());
                 }
             }
 
             db.setTransactionSuccessful();
             db.endTransaction();
+            Log.d(TAG, "Import completed successfully. Total imported: " + importedCount);
             return importedCount;
 
         } catch (Exception e) {
-            Log.e(TAG, "Import failed", e);
+            Log.e(TAG, "Import failed: " + e.getMessage(), e);
             return -1;
         }
     }

@@ -2,5 +2,8 @@
 <paths>
     <external-files-path
         name="documents"
-        path="Documents/ICS_Exports/"/>
+        path="Documents/ICS_Exports"/>
+    <external-path
+        name="downloads"
+        path="Download"/>
 </paths>
