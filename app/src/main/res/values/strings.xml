@@ -32,5 +32,6 @@
     <string name="import_csv">Импорт CSV</string>
     <string name="export_error">Ошибка экспорта</string>
     <string name="import_success">Импортировано записей: %d</string>
+    <string name="total">Сумма</string>
 
 </resources>

@@ -9,11 +9,12 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
-import java.text.NumberFormat;
-import java.util.Locale;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import java.text.NumberFormat;
+import java.util.Currency;
 import java.util.List;
+import java.util.Locale;
 
 public class StockAdapter extends RecyclerView.Adapter<StockAdapter.ViewHolder> {
     private List<Item> itemList;
@@ -49,13 +50,20 @@ public class StockAdapter extends RecyclerView.Adapter<StockAdapter.ViewHolder> 
         holder.tvCode.setText("Код: " + item.getCode());
         holder.tvPrice.setText(formatPrice(item));
         holder.tvQuantity.setText("Количество: " + item.getQuantity());
+        holder.tvTotal.setText(formatTotal(item)); // Новое поле
     }
 
-    @SuppressLint("DefaultLocale")
     private String formatPrice(Item item) {
         NumberFormat format = NumberFormat.getNumberInstance(Locale.getDefault());
-        String symbol = getCurrencySymbol(item.getCurrency());
-        return String.format("Цена: %s%s", symbol, format.format(item.getUnitPrice()));
+        return String.format("Цена: %s%s",
+                getCurrencySymbol(item.getCurrency()),
+                format.format(item.getUnitPrice()));
+    }
+
+    private String formatTotal(Item item) {
+        NumberFormat format = NumberFormat.getCurrencyInstance(Locale.getDefault());
+        format.setCurrency(Currency.getInstance(item.getCurrency()));
+        return "Сумма: " + format.format(item.getTotal());
     }
 
     private String getCurrencySymbol(String currency) {
@@ -73,7 +81,7 @@ public class StockAdapter extends RecyclerView.Adapter<StockAdapter.ViewHolder> 
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvName, tvCode, tvPrice, tvQuantity;
+        TextView tvName, tvCode, tvPrice, tvQuantity, tvTotal;
         ImageButton btnEdit, btnDelete;
 
         public ViewHolder(@NonNull View itemView) {
@@ -82,6 +90,7 @@ public class StockAdapter extends RecyclerView.Adapter<StockAdapter.ViewHolder> 
             tvCode = itemView.findViewById(R.id.tvItemCode);
             tvPrice = itemView.findViewById(R.id.tvItemPrice);
             tvQuantity = itemView.findViewById(R.id.tvItemQuantity);
+            tvTotal = itemView.findViewById(R.id.tvItemTotal);
             btnEdit = itemView.findViewById(R.id.btnEdit);
             btnDelete = itemView.findViewById(R.id.btnDelete);
 
@@ -89,12 +98,7 @@ public class StockAdapter extends RecyclerView.Adapter<StockAdapter.ViewHolder> 
         }
 
         private void setupClickListeners() {
-            btnDelete.setOnClickListener(v -> {
-                int position = getBindingAdapterPosition();
-                if (position != RecyclerView.NO_POSITION) {
-                    deleteItem(position);
-                }
-            });
+            btnDelete.setOnClickListener(v -> deleteItem(getBindingAdapterPosition()));
             btnEdit.setOnClickListener(v -> editItem());
         }
 
@@ -109,7 +113,6 @@ public class StockAdapter extends RecyclerView.Adapter<StockAdapter.ViewHolder> 
             intent.putExtra("PRICE", item.getUnitPrice());
             intent.putExtra("QUANTITY", item.getQuantity());
             intent.putExtra("CURRENCY", item.getCurrency());
-
             itemView.getContext().startActivity(intent);
         }
 
@@ -127,15 +130,15 @@ public class StockAdapter extends RecyclerView.Adapter<StockAdapter.ViewHolder> 
                             notifyItemRemoved(position);
                             dataUpdateListener.onDataUpdated();
                         } else {
-                            Toast.makeText(
-                                    itemView.getContext(),
-                                    "Ошибка удаления",
-                                    Toast.LENGTH_SHORT
-                            ).show();
+                            showError("Ошибка удаления");
                         }
                     })
                     .setNegativeButton("Отмена", null)
                     .show();
+        }
+
+        private void showError(String message) {
+            Toast.makeText(itemView.getContext(), message, Toast.LENGTH_SHORT).show();
         }
     }
 }

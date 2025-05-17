@@ -3,6 +3,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center"
+    android:importantForAutofill="noExcludeDescendants"
     android:padding="16dp">
 
 

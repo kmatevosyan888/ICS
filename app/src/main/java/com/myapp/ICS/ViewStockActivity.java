@@ -157,7 +157,7 @@ public class ViewStockActivity extends AppCompatActivity {
                         101
                 );
             } else {
-                importLauncher.launch("*/*"); // Исправленный MIME-тип
+                importLauncher.launch("*/*"); // MIME-тип
             }
         }
         Log.d(TAG, "checkStoragePermission() called");
@@ -191,21 +191,17 @@ public class ViewStockActivity extends AppCompatActivity {
         showProgress(true);
         new Thread(() -> {
             try {
-                Log.d(TAG, "Starting import process...");
                 int result = new CsvHelper(ViewStockActivity.this).importFromCsv(uri);
-                Log.d(TAG, "Import result: " + result);
-
                 runOnUiThread(() -> {
                     showProgress(false);
-                    showImportResult(result);
-                    loadItems();
+                    if (result > 0) {
+                        loadItems();
+                        showImportResult(result);
+                    } else {
+                        Toast.makeText(this, "Ошибка импорта", Toast.LENGTH_SHORT).show();
+                    }
                 });
             } catch (Exception e) {
-                Log.e(TAG, "Error during import: " + e.getMessage(), e);
-                runOnUiThread(() -> {
-                    showProgress(false);
-                    Toast.makeText(this, "Ошибка импорта: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                });
             }
         }).start();
     }

@@ -3,12 +3,13 @@
     android:layout_height="match_parent"
     android:background="@android:color/white"
     android:orientation="vertical"
+    android:importantForAutofill="noExcludeDescendants"
     android:padding="16dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="150dp"
+        android:layout_marginTop="100dp"
         android:orientation="horizontal">
 
 
@@ -41,13 +42,14 @@
         android:layout_marginBottom="12dp"
         android:autofillHints="name"
         android:hint="@string/edT_Название"
-        android:inputType="text" />
+        android:inputType="text"
+        android:layout_marginTop="12dp"/>
 
     <Spinner
         android:id="@+id/currencySpinner"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="4dp"
         android:entries="@array/currencies"
         android:minHeight="48dp"
         android:prompt="@string/select_currency" />
@@ -103,6 +105,14 @@
         </LinearLayout>
     </LinearLayout>
 
+    <EditText
+        android:id="@+id/itemTotal"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:hint="@string/total"
+        android:inputType="numberDecimal"
+        android:enabled="false"
+        android:layout_marginBottom="12dp"/>
 
     <Button
         android:id="@+id/saveButton"

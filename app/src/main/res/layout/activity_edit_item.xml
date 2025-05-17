@@ -2,7 +2,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:importantForAutofill="noExcludeDescendants"
     android:padding="16dp">
+
+    <EditText
+        android:id="@+id/etEditBarcode"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:hint="@string/edT_Код"
+        android:inputType="text"/>
 
     <EditText
         android:id="@+id/etEditName"
@@ -27,6 +35,14 @@
         android:hint="@string/edT_Количество"
         android:layout_marginBottom="12dp"
         android:inputType="number"/>
+
+    <EditText
+        android:id="@+id/etEditTotal"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:hint="@string/total"
+        android:inputType="numberDecimal"
+        android:enabled="false"/>
 
     <Spinner
         android:id="@+id/spinnerEditCurrency"

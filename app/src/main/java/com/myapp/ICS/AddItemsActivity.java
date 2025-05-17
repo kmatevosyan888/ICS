@@ -2,7 +2,9 @@ package com.myapp.ICS;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -13,7 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 public class AddItemsActivity extends AppCompatActivity {
     private static final int SCAN_REQUEST_CODE = 1001;
 
-    private EditText itemName, itemBarcode, itemPrice, itemQuantity;
+    private EditText itemName, itemBarcode, itemPrice, itemQuantity, itemTotal;
     private Spinner currencySpinner;
 
     @Override
@@ -24,6 +26,7 @@ public class AddItemsActivity extends AppCompatActivity {
         initViews();
         setupCurrencySpinner();
         setupQuantityButtons();
+        setupTextWatchers();
     }
 
     private void initViews() {
@@ -31,26 +34,16 @@ public class AddItemsActivity extends AppCompatActivity {
         itemBarcode = findViewById(R.id.itemBarcode);
         itemPrice = findViewById(R.id.itemPrice);
         itemQuantity = findViewById(R.id.itemQuantity);
+        itemTotal = findViewById(R.id.itemTotal);
         currencySpinner = findViewById(R.id.currencySpinner);
+
         Button saveButton = findViewById(R.id.saveButton);
         saveButton.setOnClickListener(v -> saveItemToDatabase());
+
         Button scanButton = findViewById(R.id.btnScanAdd);
-        scanButton.setOnClickListener(v -> {
-            Intent intent = new Intent(this, ScannerActivity.class);
-            startActivityForResult(intent, SCAN_REQUEST_CODE);
-        });
+        scanButton.setOnClickListener(v -> startScanner());
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == SCAN_REQUEST_CODE && resultCode == RESULT_OK) {
-            if (data != null) {
-                String result = data.getStringExtra(ScannerActivity.SCAN_RESULT);
-                itemBarcode.setText(result);
-            }
-        }
-    }
     private void setupCurrencySpinner() {
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
                 this, R.array.currencies, android.R.layout.simple_spinner_item);
@@ -66,10 +59,53 @@ public class AddItemsActivity extends AppCompatActivity {
         decreaseButton.setOnClickListener(v -> adjustQuantity(-1));
     }
 
+    private void setupTextWatchers() {
+        TextWatcher textWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                calculateTotal();
+            }
+        };
+
+        itemPrice.addTextChangedListener(textWatcher);
+        itemQuantity.addTextChangedListener(textWatcher);
+    }
+
+    private void calculateTotal() {
+        try {
+            double price = Double.parseDouble(itemPrice.getText().toString());
+            int quantity = Integer.parseInt(itemQuantity.getText().toString());
+            double total = price * quantity;
+            itemTotal.setText(String.format("%.2f", total));
+        } catch (NumberFormatException e) {
+            itemTotal.setText("0.00");
+        }
+    }
+
     private void adjustQuantity(int delta) {
         int quantity = getCurrentQuantity() + delta;
         if (quantity >= 0) {
             itemQuantity.setText(String.valueOf(quantity));
+            calculateTotal();
+        }
+    }
+
+    private void startScanner() {
+        Intent intent = new Intent(this, ScannerActivity.class);
+        startActivityForResult(intent, SCAN_REQUEST_CODE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == SCAN_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
+            itemBarcode.setText(data.getStringExtra(ScannerActivity.SCAN_RESULT));
         }
     }
 
@@ -82,30 +118,29 @@ public class AddItemsActivity extends AppCompatActivity {
                 itemBarcode.getText().toString(),
                 Double.parseDouble(itemPrice.getText().toString()),
                 getCurrentQuantity(),
-                currencySpinner.getSelectedItem().toString().split(" ")[0]
+                currencySpinner.getSelectedItem().toString().split(" ")[0],
+                Double.parseDouble(itemTotal.getText().toString())
         );
 
         showResult(success);
     }
 
     private boolean validateInput() {
-        // Проверка названия
         if (TextUtils.isEmpty(itemName.getText())) {
             showError("Введите название");
             return false;
         }
 
-        // Проверка штрих-кода
         if (TextUtils.isEmpty(itemBarcode.getText())) {
             showError("Введите штрих-код");
             return false;
         }
 
-        // Проверка цены
         if (TextUtils.isEmpty(itemPrice.getText())) {
             showError("Введите цену");
             return false;
         }
+
         try {
             double price = Double.parseDouble(itemPrice.getText().toString());
             if (price < 0) {
@@ -117,14 +152,15 @@ public class AddItemsActivity extends AppCompatActivity {
             return false;
         }
 
-        // Проверка количества
         int quantity = getCurrentQuantity();
         if (quantity < 0) {
             showError("Количество не может быть отрицательным");
             return false;
         }
+
         return true;
     }
+
     private int getCurrentQuantity() {
         try {
             return Integer.parseInt(itemQuantity.getText().toString());
@@ -151,6 +187,7 @@ public class AddItemsActivity extends AppCompatActivity {
         itemBarcode.getText().clear();
         itemPrice.getText().clear();
         itemQuantity.setText("0");
+        itemTotal.setText("0.00");
         currencySpinner.setSelection(0);
     }
 }
