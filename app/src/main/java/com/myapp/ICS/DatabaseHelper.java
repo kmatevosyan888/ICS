@@ -1,26 +1,31 @@
 package com.myapp.ICS;
 
+import static androidx.fragment.app.FragmentManager.TAG;
+
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
+
 import java.util.LinkedList;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "ICS.db";
     private static final int DATABASE_VERSION = 3;
+    private static final String TAG = "DatabaseHelper";
 
     // Константы таблицы
     public static final String TABLE_ITEMS = "items";
-    private static final String COLUMN_ID = "id";
-    private static final String COLUMN_NAME = "name";
-    private static final String COLUMN_BARCODE = "barcode";
-    private static final String COLUMN_PRICE = "price";
-    private static final String COLUMN_QUANTITY = "quantity";
-    private static final String COLUMN_CURRENCY = "currency";
-    private static final String COLUMN_TOTAL = "total";
+    public static final String COLUMN_ID = "id";
+    public static final String COLUMN_NAME = "name";
+    public static final String COLUMN_BARCODE = "barcode";
+    public static final String COLUMN_PRICE = "price";
+    public static final String COLUMN_QUANTITY = "quantity";
+    public static final String COLUMN_CURRENCY = "currency";
+    public static final String COLUMN_TOTAL = "total";
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -46,25 +51,30 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.execSQL("ALTER TABLE " + TABLE_ITEMS + " ADD COLUMN " + COLUMN_TOTAL + " REAL DEFAULT 0");
 
             ContentValues values = new ContentValues();
-            Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_ITEMS, null);
+            try (Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_ITEMS, null)) {
+                while (cursor.moveToNext()) {
+                    double price = cursor.getDouble(cursor.getColumnIndex(COLUMN_PRICE));
+                    int quantity = cursor.getInt(cursor.getColumnIndex(COLUMN_QUANTITY));
+                    values.put(COLUMN_TOTAL, price * quantity);
 
-            while (cursor.moveToNext()) {
-                @SuppressLint("Range") double price = cursor.getDouble(cursor.getColumnIndex(COLUMN_PRICE));
-                @SuppressLint("Range") int quantity = cursor.getInt(cursor.getColumnIndex(COLUMN_QUANTITY));
-                values.put(COLUMN_TOTAL, price * quantity);
-
-                db.update(TABLE_ITEMS,
-                        values,
-                        COLUMN_ID + " = ?",
-                        new String[]{cursor.getString(cursor.getColumnIndex(COLUMN_ID))}
-                );
+                    db.update(TABLE_ITEMS,
+                            values,
+                            COLUMN_ID + " = ?",
+                            new String[]{cursor.getString(cursor.getColumnIndex(COLUMN_ID))}
+                    );
+                }
             }
-            cursor.close();
         }
     }
 
     public boolean addItem(String name, String barcode, double price,
                            int quantity, String currency, double total) {
+        // Проверка валюты перед операцией
+        if (!isValidCurrency(currency)) {
+            Log.e(TAG, "Invalid currency: " + currency);
+            return false;
+        }
+
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
 
@@ -86,14 +96,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public boolean updateItem(String oldBarcode, String newBarcode, String newName, double newPrice,
                               int newQuantity, String newCurrency, double newTotal) {
-        if (!oldBarcode.equals(newBarcode)) {
-            // Проверка существования нового кода
-            if (isBarcodeExists(newBarcode)) {
-                return false;
-            }
+        // Проверка изменения штрих-кода
+        if (!oldBarcode.equals(newBarcode) && isBarcodeExists(newBarcode)) {
+            return false;
         }
 
-            SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
 
         values.put(COLUMN_BARCODE, newBarcode);
@@ -104,13 +112,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_TOTAL, newTotal);
 
         try {
-            int result = db.update(TABLE_ITEMS, values,
-                    COLUMN_BARCODE + " = ?", new String[]{oldBarcode});
+            int result = db.update(TABLE_ITEMS,
+                    values,
+                    COLUMN_BARCODE + " = ?",
+                    new String[]{oldBarcode});
             return result > 0;
         } finally {
             db.close();
         }
+    }
 
+    private boolean isValidCurrency(String currency) {
+        return currency.matches("USD|EUR|RUB|AMD");
     }
 
     public boolean isBarcodeExists(String barcode) {
