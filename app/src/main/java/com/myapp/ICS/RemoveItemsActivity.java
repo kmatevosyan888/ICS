@@ -33,6 +33,8 @@ public class RemoveItemsActivity extends AppCompatActivity {
         itemName = findViewById(R.id.itemNameRemove);
         itemQuantity = findViewById(R.id.itemQuantity);
         itemTotal = findViewById(R.id.itemTotalRemove);
+        itemTotal.setEnabled(false);
+
         Button removeButton = findViewById(R.id.removeButton);
         Button scanButton = findViewById(R.id.btnScanRemove);
 
@@ -42,11 +44,7 @@ public class RemoveItemsActivity extends AppCompatActivity {
         itemQuantity.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                calculateTotal();
-            }
+            @Override public void afterTextChanged(Editable s) { calculateTotal(); }
         });
     }
 
@@ -164,17 +162,14 @@ public class RemoveItemsActivity extends AppCompatActivity {
             showError("Введите штрих-код");
             return false;
         }
-
         if (currentItem == null) {
             showError("Товар не найден");
             return false;
         }
-
         if (!currentItem.getName().equalsIgnoreCase(enteredName)) {
             showError("Название не совпадает!\nОжидается: " + currentItem.getName());
             return false;
         }
-
         return true;
     }
 

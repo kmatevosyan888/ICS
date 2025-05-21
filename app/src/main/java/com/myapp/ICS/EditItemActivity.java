@@ -35,6 +35,7 @@ public class EditItemActivity extends AppCompatActivity {
         etEditQuantity = findViewById(R.id.etEditQuantity);
         etEditBarcode = findViewById(R.id.etEditBarcode);
         etEditTotal = findViewById(R.id.etEditTotal);
+        etEditTotal.setEnabled(false);
         currencySpinner = findViewById(R.id.spinnerEditCurrency);
         btnSave = findViewById(R.id.btnSaveChanges);
 
@@ -75,11 +76,7 @@ public class EditItemActivity extends AppCompatActivity {
 
     private void setupTextWatchers() {
         TextWatcher textWatcher = new TextWatcher() {
-            @Override
-            public void afterTextChanged(Editable s) {
-                calculateTotal();
-            }
-
+            @Override public void afterTextChanged(Editable s) { calculateTotal(); }
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
         };
@@ -91,7 +88,7 @@ public class EditItemActivity extends AppCompatActivity {
 
     private void calculateTotal() {
         try {
-            double price = Double.parseDouble(etEditPrice.getText().toString());
+            double price = parseDoubleLocale(etEditPrice.getText().toString());
             int quantity = Integer.parseInt(etEditQuantity.getText().toString());
             double total = price * quantity;
             etEditTotal.setText(String.format("%.2f", total));
@@ -99,6 +96,7 @@ public class EditItemActivity extends AppCompatActivity {
             etEditTotal.setText("0.00");
         }
     }
+
     private void saveChanges() {
         if (!validateInput()) return;
 
@@ -107,13 +105,13 @@ public class EditItemActivity extends AppCompatActivity {
         String selectedCurrency = currencySpinner.getSelectedItem().toString().split(" ")[0];
 
         boolean success = dbHelper.updateItem(
-                originalBarcode, // Старый штрих-код для поиска
-                newBarcode,      // Новый штрих-код
+                originalBarcode,
+                newBarcode,
                 etEditName.getText().toString(),
-                Double.parseDouble(etEditPrice.getText().toString()),
+                parseDoubleLocale(etEditPrice.getText().toString()),
                 Integer.parseInt(etEditQuantity.getText().toString()),
                 selectedCurrency,
-                Double.parseDouble(etEditTotal.getText().toString())
+                parseDoubleLocale(etEditTotal.getText().toString())
         );
 
         if (success) {
@@ -126,21 +124,16 @@ public class EditItemActivity extends AppCompatActivity {
     }
 
     private boolean validateInput() {
-        // Проверка штрих-кода
         if (TextUtils.isEmpty(etEditBarcode.getText())) {
             showError("Введите штрих-код");
             return false;
         }
-
-        // Проверка названия
         if (TextUtils.isEmpty(etEditName.getText())) {
             showError("Введите название");
             return false;
         }
-
-        // Проверка цены
         try {
-            double price = Double.parseDouble(etEditPrice.getText().toString());
+            double price = parseDoubleLocale(etEditPrice.getText().toString());
             if (price < 0) {
                 showError("Цена не может быть отрицательной");
                 return false;
@@ -149,8 +142,6 @@ public class EditItemActivity extends AppCompatActivity {
             showError("Некорректная цена");
             return false;
         }
-
-        // Проверка количества
         try {
             int quantity = Integer.parseInt(etEditQuantity.getText().toString());
             if (quantity < 0) {
@@ -161,11 +152,17 @@ public class EditItemActivity extends AppCompatActivity {
             showError("Некорректное количество");
             return false;
         }
-
         return true;
     }
 
     private void showError(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    // --- Исправление: корректный парсинг double с запятой и точкой
+    private double parseDoubleLocale(String str) {
+        if (str == null) return 0.0;
+        str = str.replace(",", ".").replaceAll("[^\\d.]", "");
+        return Double.parseDouble(str);
     }
 }

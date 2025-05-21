@@ -42,7 +42,8 @@
         android:layout_height="50dp"
         android:hint="@string/total"
         android:inputType="numberDecimal"
-        android:enabled="false"/>
+        android:enabled="false"
+        android:focusable="false"/>
 
     <Spinner
         android:id="@+id/spinnerEditCurrency"

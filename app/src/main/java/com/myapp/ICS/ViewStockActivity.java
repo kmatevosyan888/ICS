@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.Manifest;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -15,6 +16,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import java.util.List;
 
 import android.util.Log;
@@ -67,17 +69,6 @@ public class ViewStockActivity extends AppCompatActivity {
 
         if (items.isEmpty()) {
             Toast.makeText(this, "Склад пуст. Добавьте товары!", Toast.LENGTH_SHORT).show();
-        }
-        if (adapter == null) {
-            adapter = new StockAdapter(items, new StockAdapter.DataUpdateListener() {
-                @Override
-                public void onDataUpdated() {
-                    loadItems();
-                }
-            });
-            recyclerView.setAdapter(adapter);
-        } else {
-            adapter.updateList(items);
         }
     }
 
@@ -145,10 +136,8 @@ public class ViewStockActivity extends AppCompatActivity {
 
     private void checkStoragePermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            // Для Android 10+ (API 29) и выше
-            importLauncher.launch("*/*"); // Запускаем без проверки разрешений
+            importLauncher.launch("*/*");
         } else {
-            // Для версий ниже Android 10
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
                     != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(
@@ -157,7 +146,7 @@ public class ViewStockActivity extends AppCompatActivity {
                         101
                 );
             } else {
-                importLauncher.launch("*/*"); // MIME-тип
+                importLauncher.launch("*/*");
             }
         }
         Log.d(TAG, "checkStoragePermission() called");
@@ -182,7 +171,6 @@ public class ViewStockActivity extends AppCompatActivity {
             Toast.makeText(this, "Файл не выбран", Toast.LENGTH_SHORT).show();
             return;
         }
-
         String mimeType = getContentResolver().getType(uri);
         if (mimeType == null || !mimeType.startsWith("text/")) {
             Toast.makeText(this, "Некорректный тип файла", Toast.LENGTH_SHORT).show();
@@ -201,8 +189,7 @@ public class ViewStockActivity extends AppCompatActivity {
                         Toast.makeText(this, "Ошибка импорта", Toast.LENGTH_SHORT).show();
                     }
                 });
-            } catch (Exception e) {
-            }
+            } catch (Exception e) { }
         }).start();
     }
 }

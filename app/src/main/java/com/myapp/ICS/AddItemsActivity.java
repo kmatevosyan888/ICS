@@ -35,6 +35,7 @@ public class AddItemsActivity extends AppCompatActivity {
         itemPrice = findViewById(R.id.itemPrice);
         itemQuantity = findViewById(R.id.itemQuantity);
         itemTotal = findViewById(R.id.itemTotal);
+        itemTotal.setEnabled(false);
         currencySpinner = findViewById(R.id.currencySpinner);
 
         Button saveButton = findViewById(R.id.saveButton);
@@ -61,16 +62,9 @@ public class AddItemsActivity extends AppCompatActivity {
 
     private void setupTextWatchers() {
         TextWatcher textWatcher = new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                calculateTotal();
-            }
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override public void afterTextChanged(Editable s) { calculateTotal(); }
         };
 
         itemPrice.addTextChangedListener(textWatcher);
@@ -79,7 +73,7 @@ public class AddItemsActivity extends AppCompatActivity {
 
     private void calculateTotal() {
         try {
-            double price = Double.parseDouble(itemPrice.getText().toString());
+            double price = parseDoubleLocale(itemPrice.getText().toString());
             int quantity = Integer.parseInt(itemQuantity.getText().toString());
             double total = price * quantity;
             itemTotal.setText(String.format("%.2f", total));
@@ -116,12 +110,11 @@ public class AddItemsActivity extends AppCompatActivity {
         boolean success = dbHelper.addItem(
                 itemName.getText().toString(),
                 itemBarcode.getText().toString(),
-                Double.parseDouble(itemPrice.getText().toString()),
+                parseDoubleLocale(itemPrice.getText().toString()),
                 getCurrentQuantity(),
                 currencySpinner.getSelectedItem().toString().split(" ")[0],
-                Double.parseDouble(itemTotal.getText().toString())
+                parseDoubleLocale(itemTotal.getText().toString())
         );
-
         showResult(success);
     }
 
@@ -130,19 +123,16 @@ public class AddItemsActivity extends AppCompatActivity {
             showError("Введите название");
             return false;
         }
-
         if (TextUtils.isEmpty(itemBarcode.getText())) {
             showError("Введите штрих-код");
             return false;
         }
-
         if (TextUtils.isEmpty(itemPrice.getText())) {
             showError("Введите цену");
             return false;
         }
-
         try {
-            double price = Double.parseDouble(itemPrice.getText().toString());
+            double price = parseDoubleLocale(itemPrice.getText().toString());
             if (price < 0) {
                 showError("Цена не может быть отрицательной");
                 return false;
@@ -151,13 +141,11 @@ public class AddItemsActivity extends AppCompatActivity {
             showError("Некорректная цена");
             return false;
         }
-
         int quantity = getCurrentQuantity();
         if (quantity < 0) {
             showError("Количество не может быть отрицательным");
             return false;
         }
-
         return true;
     }
 
@@ -189,5 +177,12 @@ public class AddItemsActivity extends AppCompatActivity {
         itemQuantity.setText("0");
         itemTotal.setText("0.00");
         currencySpinner.setSelection(0);
+    }
+
+    // --- Исправление: корректный парсинг double с запятой и точкой
+    private double parseDoubleLocale(String str) {
+        if (str == null) return 0.0;
+        str = str.replace(",", ".").replaceAll("[^\\d.]", "");
+        return Double.parseDouble(str);
     }
 }

@@ -5,10 +5,12 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
 
@@ -64,9 +66,11 @@ public class ScannerActivity extends AppCompatActivity {
 
         barcodeLauncher.launch(options);
     }
+
     private void toggleFlash(ScanOptions options) {
-        options.setTorchEnabled(true); // Автоматическое управление фонариком
+        options.setTorchEnabled(true);
     }
+
     private final ActivityResultLauncher<Intent> galleryLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
@@ -82,7 +86,6 @@ public class ScannerActivity extends AppCompatActivity {
     }
 
     private void processImage(Uri uri) {
-        // Реализация обработки изображения
+        // Реализация обработки изображения (при необходимости)
     }
-
 }

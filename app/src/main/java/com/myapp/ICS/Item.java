@@ -26,7 +26,5 @@ public class Item {
         this.quantity = quantity;
         this.total = this.unitPrice * quantity;
     }
-    public double getTotal() {
-        return total;
-    }
+    public double getTotal() { return total; }
 }

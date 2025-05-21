@@ -1,7 +1,5 @@
 package com.myapp.ICS;
 
-import static androidx.fragment.app.FragmentManager.TAG;
-
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
@@ -15,17 +13,15 @@ import java.util.LinkedList;
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "ICS.db";
     private static final int DATABASE_VERSION = 3;
-    private static final String TAG = "DatabaseHelper";
 
-    // Константы таблицы
     public static final String TABLE_ITEMS = "items";
-    public static final String COLUMN_ID = "id";
-    public static final String COLUMN_NAME = "name";
-    public static final String COLUMN_BARCODE = "barcode";
-    public static final String COLUMN_PRICE = "price";
-    public static final String COLUMN_QUANTITY = "quantity";
-    public static final String COLUMN_CURRENCY = "currency";
-    public static final String COLUMN_TOTAL = "total";
+    private static final String COLUMN_ID = "id";
+    private static final String COLUMN_NAME = "name";
+    private static final String COLUMN_BARCODE = "barcode";
+    private static final String COLUMN_PRICE = "price";
+    private static final String COLUMN_QUANTITY = "quantity";
+    private static final String COLUMN_CURRENCY = "currency";
+    private static final String COLUMN_TOTAL = "total";
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -44,66 +40,89 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(createTable);
     }
 
-    @SuppressLint("Range")
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         if (oldVersion < 3) {
             db.execSQL("ALTER TABLE " + TABLE_ITEMS + " ADD COLUMN " + COLUMN_TOTAL + " REAL DEFAULT 0");
 
-            ContentValues values = new ContentValues();
-            try (Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_ITEMS, null)) {
-                while (cursor.moveToNext()) {
-                    double price = cursor.getDouble(cursor.getColumnIndex(COLUMN_PRICE));
-                    int quantity = cursor.getInt(cursor.getColumnIndex(COLUMN_QUANTITY));
-                    values.put(COLUMN_TOTAL, price * quantity);
+            Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_ITEMS, null);
+            int idxId = cursor.getColumnIndex(COLUMN_ID);
+            int idxPrice = cursor.getColumnIndex(COLUMN_PRICE);
+            int idxQuantity = cursor.getColumnIndex(COLUMN_QUANTITY);
 
-                    db.update(TABLE_ITEMS,
-                            values,
-                            COLUMN_ID + " = ?",
-                            new String[]{cursor.getString(cursor.getColumnIndex(COLUMN_ID))}
-                    );
-                }
+            if (idxId == -1 || idxPrice == -1 || idxQuantity == -1) {
+                // Логируем ошибку — структура таблицы неожиданна
+                Log.e("DBUpgrade", "One or more columns not found in table!");
+                cursor.close();
+                return;
             }
+
+            while (cursor.moveToNext()) {
+                double price = cursor.getDouble(idxPrice);
+                int quantity = cursor.getInt(idxQuantity);
+                double total = price * quantity;
+
+                ContentValues values = new ContentValues();
+                values.put(COLUMN_TOTAL, total);
+
+                db.update(
+                        TABLE_ITEMS,
+                        values,
+                        COLUMN_ID + " = ?",
+                        new String[]{cursor.getString(idxId)}
+                );
+            }
+            cursor.close();
         }
     }
-
     public boolean addItem(String name, String barcode, double price,
                            int quantity, String currency, double total) {
-        // Проверка валюты перед операцией
-        if (!isValidCurrency(currency)) {
-            Log.e(TAG, "Invalid currency: " + currency);
-            return false;
-        }
-
         SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
+        Cursor cursor = db.rawQuery("SELECT " + COLUMN_QUANTITY + ", " + COLUMN_TOTAL + " FROM " + TABLE_ITEMS + " WHERE " + COLUMN_BARCODE + " = ?", new String[]{barcode});
+        boolean updated = false;
 
-        values.put(COLUMN_NAME, name);
-        values.put(COLUMN_BARCODE, barcode);
-        values.put(COLUMN_PRICE, price);
-        values.put(COLUMN_QUANTITY, quantity);
-        values.put(COLUMN_CURRENCY, currency);
-        values.put(COLUMN_TOTAL, total);
-
-        long result = db.insertWithOnConflict(TABLE_ITEMS,
-                null,
-                values,
-                SQLiteDatabase.CONFLICT_REPLACE);
-
-        db.close();
-        return result != -1;
+        try {
+            if (cursor.moveToFirst()) {
+                // Товар уже есть, увеличиваем количество и сумму
+                int oldQuantity = cursor.getInt(0);
+                int newQuantity = oldQuantity + quantity;
+                double newTotal = price * newQuantity;
+                ContentValues values = new ContentValues();
+                values.put(COLUMN_NAME, name);
+                values.put(COLUMN_PRICE, price);
+                values.put(COLUMN_QUANTITY, newQuantity);
+                values.put(COLUMN_CURRENCY, currency);
+                values.put(COLUMN_TOTAL, newTotal);
+                int result = db.update(TABLE_ITEMS, values, COLUMN_BARCODE + " = ?", new String[]{barcode});
+                updated = (result > 0);
+            } else {
+                // Товара нет, добавляем новый
+                ContentValues values = new ContentValues();
+                values.put(COLUMN_NAME, name);
+                values.put(COLUMN_BARCODE, barcode);
+                values.put(COLUMN_PRICE, price);
+                values.put(COLUMN_QUANTITY, quantity);
+                values.put(COLUMN_CURRENCY, currency);
+                values.put(COLUMN_TOTAL, total);
+                long result = db.insert(TABLE_ITEMS, null, values);
+                updated = (result != -1);
+            }
+        } finally {
+            cursor.close();
+            db.close();
+        }
+        return updated;
     }
 
     public boolean updateItem(String oldBarcode, String newBarcode, String newName, double newPrice,
                               int newQuantity, String newCurrency, double newTotal) {
-        // Проверка изменения штрих-кода
-        if (!oldBarcode.equals(newBarcode) && isBarcodeExists(newBarcode)) {
-            return false;
+        if (!oldBarcode.equals(newBarcode)) {
+            if (isBarcodeExists(newBarcode)) {
+                return false;
+            }
         }
-
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-
         values.put(COLUMN_BARCODE, newBarcode);
         values.put(COLUMN_NAME, newName);
         values.put(COLUMN_PRICE, newPrice);
@@ -112,18 +131,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_TOTAL, newTotal);
 
         try {
-            int result = db.update(TABLE_ITEMS,
-                    values,
-                    COLUMN_BARCODE + " = ?",
-                    new String[]{oldBarcode});
+            int result = db.update(TABLE_ITEMS, values,
+                    COLUMN_BARCODE + " = ?", new String[]{oldBarcode});
             return result > 0;
         } finally {
             db.close();
         }
-    }
-
-    private boolean isValidCurrency(String currency) {
-        return currency.matches("USD|EUR|RUB|AMD");
     }
 
     public boolean isBarcodeExists(String barcode) {
@@ -151,7 +164,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         LinkedList<Item> items = new LinkedList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = null;
-
         try {
             cursor = db.rawQuery("SELECT * FROM " + TABLE_ITEMS, null);
             if (cursor.moveToFirst()) {
@@ -162,7 +174,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     @SuppressLint("Range") int quantity = cursor.getInt(cursor.getColumnIndex(COLUMN_QUANTITY));
                     @SuppressLint("Range") String currency = cursor.getString(cursor.getColumnIndex(COLUMN_CURRENCY));
                     @SuppressLint("Range") double total = cursor.getDouble(cursor.getColumnIndex(COLUMN_TOTAL));
-
                     items.add(new Item(code, name, price, quantity, currency, total));
                 } while (cursor.moveToNext());
             }
@@ -175,21 +186,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public boolean removeItem(String barcode, int quantityToRemove) {
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.rawQuery("SELECT " + COLUMN_QUANTITY + ", " + COLUMN_PRICE +
-                        " FROM " + TABLE_ITEMS + " WHERE " + COLUMN_BARCODE + " = ?",
-                new String[]{barcode});
-
+        Cursor cursor = db.rawQuery("SELECT " + COLUMN_QUANTITY + ", " + COLUMN_PRICE + " FROM " + TABLE_ITEMS + " WHERE " + COLUMN_BARCODE + " = ?", new String[]{barcode});
         try {
             if (cursor.moveToFirst()) {
                 int currentQuantity = cursor.getInt(0);
                 double price = cursor.getDouble(1);
-
                 if (currentQuantity >= quantityToRemove) {
                     int newQuantity = currentQuantity - quantityToRemove;
                     ContentValues values = new ContentValues();
                     values.put(COLUMN_QUANTITY, newQuantity);
                     values.put(COLUMN_TOTAL, price * newQuantity);
-
                     int rowsUpdated = db.update(TABLE_ITEMS,
                             values,
                             COLUMN_BARCODE + " = ?",
@@ -207,12 +213,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public Item getItemByBarcode(String barcode) {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = null;
-
         try {
             cursor = db.rawQuery("SELECT * FROM " + TABLE_ITEMS +
                             " WHERE " + COLUMN_BARCODE + " = ?",
                     new String[]{barcode});
-
             if (cursor.moveToFirst()) {
                 @SuppressLint("Range") String code = cursor.getString(cursor.getColumnIndex(COLUMN_BARCODE));
                 @SuppressLint("Range") String name = cursor.getString(cursor.getColumnIndex(COLUMN_NAME));
@@ -220,7 +224,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 @SuppressLint("Range") int quantity = cursor.getInt(cursor.getColumnIndex(COLUMN_QUANTITY));
                 @SuppressLint("Range") String currency = cursor.getString(cursor.getColumnIndex(COLUMN_CURRENCY));
                 @SuppressLint("Range") double total = cursor.getDouble(cursor.getColumnIndex(COLUMN_TOTAL));
-
                 return new Item(code, name, price, quantity, currency, total);
             }
             return null;
@@ -239,11 +242,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.close();
         }
     }
+
     @Override
     public SQLiteDatabase getReadableDatabase() {
         return super.getReadableDatabase();
     }
-
     @Override
     public SQLiteDatabase getWritableDatabase() {
         return super.getWritableDatabase();

@@ -1,6 +1,5 @@
 package com.myapp.ICS;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -29,12 +28,6 @@ public class StockAdapter extends RecyclerView.Adapter<StockAdapter.ViewHolder> 
         this.dataUpdateListener = listener;
     }
 
-    @SuppressLint("NotifyDataSetChanged")
-    public void updateList(List<Item> newList) {
-        itemList = newList;
-        notifyDataSetChanged();
-    }
-
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -46,42 +39,35 @@ public class StockAdapter extends RecyclerView.Adapter<StockAdapter.ViewHolder> 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Item item = itemList.get(position);
-
         holder.tvName.setText(item.getName());
-        holder.tvCode.setText(formatLabel("Код", item.getCode()));
-        holder.tvPrice.setText(formatLabel("Цена", formatPrice(item)));
-        holder.tvQuantity.setText(formatLabel("Количество", String.valueOf(item.getQuantity())));
-        holder.tvTotal.setText(formatLabel("Сумма", formatTotal(item)));
-    }
-
-    private String formatLabel(String label, String value) {
-        return String.format("%s: %s", label, value);
+        holder.tvCode.setText("Код: " + item.getCode());
+        holder.tvPrice.setText(formatPrice(item));
+        holder.tvQuantity.setText("Количество: " + item.getQuantity());
+        holder.tvTotal.setText(formatTotal(item));
     }
 
     private String formatPrice(Item item) {
-        NumberFormat format = NumberFormat.getNumberInstance(new Locale("ru", "RU"));
-        return String.format("%s %s",
-                format.format(item.getUnitPrice()),
-                getCurrencySymbol(item.getCurrency())
-        );
+        NumberFormat format = NumberFormat.getNumberInstance(Locale.getDefault());
+        return String.format("Цена: %s%s",
+                getCurrencySymbol(item.getCurrency()),
+                format.format(item.getUnitPrice()));
     }
 
     private String formatTotal(Item item) {
-        NumberFormat format = NumberFormat.getNumberInstance(new Locale("ru", "RU"));
-        return String.format("%s %s",
-                format.format(item.getTotal()),
-                getCurrencySymbol(item.getCurrency())
-        );
+        NumberFormat format = NumberFormat.getCurrencyInstance(Locale.getDefault());
+        format.setCurrency(Currency.getInstance(item.getCurrency()));
+        return "Сумма: " + format.format(item.getTotal());
     }
+
     private String getCurrencySymbol(String currency) {
-        switch (currency.toUpperCase()) {
+        switch (currency) {
             case "USD": return "$";
             case "EUR": return "€";
             case "AMD": return "֏";
-            case "RUB": return "₽";
-            default: return currency;
+            default: return "₽";
         }
     }
+
     @Override
     public int getItemCount() {
         return itemList.size();
@@ -147,5 +133,10 @@ public class StockAdapter extends RecyclerView.Adapter<StockAdapter.ViewHolder> 
         private void showError(String message) {
             Toast.makeText(itemView.getContext(), message, Toast.LENGTH_SHORT).show();
         }
+    }
+
+    public void updateList(List<Item> newList) {
+        this.itemList = newList;
+        notifyDataSetChanged();
     }
 }

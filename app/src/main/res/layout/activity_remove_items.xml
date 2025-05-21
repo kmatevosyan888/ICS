@@ -27,7 +27,7 @@
             android:layout_height="50dp"
             android:backgroundTint="@color/white"
             android:contentDescription="@string/scan_description"
-            android:drawableEnd="@drawable/ic_qr"
+            android:drawableRight="@drawable/ic_qr"
             android:gravity="center"
             android:padding="16dp" />
 
@@ -91,6 +91,7 @@
         android:hint="@string/total"
         android:inputType="numberDecimal"
         android:enabled="false"
+        android:focusable="false"
         android:layout_marginTop="12dp"/>
 
     <Button

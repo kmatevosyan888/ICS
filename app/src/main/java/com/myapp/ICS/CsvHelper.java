@@ -7,7 +7,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
+
 import androidx.core.content.FileProvider;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -68,18 +70,17 @@ public class CsvHelper {
 
     public int importFromCsv(Uri uri) {
         int importedCount = 0;
+        SQLiteDatabase db = null;
         try (InputStream inputStream = context.getContentResolver().openInputStream(uri);
              BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
 
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            db = dbHelper.getWritableDatabase();
             db.beginTransaction();
 
             try {
+                // Удаляем все существующие записи (НЕ вызываем dbHelper.deleteAllItems())
                 db.execSQL("DELETE FROM " + DatabaseHelper.TABLE_ITEMS);
-                // 1. Удаляем все существующие записи
-                dbHelper.deleteAllItems();
 
-                // 2. Импортируем новые данные
                 String line;
                 boolean isFirstLine = true;
                 int lineNumber = 0;
@@ -97,10 +98,10 @@ public class CsvHelper {
                         ContentValues values = new ContentValues();
                         values.put("barcode", columns[0].replace("\"", "").trim());
                         values.put("name", columns[1].replace("\"", "").trim());
-                        values.put("price", Double.parseDouble(columns[2].trim()));
+                        values.put("price", parseDoubleLocale(columns[2]));
                         values.put("quantity", Integer.parseInt(columns[3].trim()));
                         values.put("currency", columns[4].replace("\"", "").trim());
-                        values.put("total", Double.parseDouble(columns[5].trim()));
+                        values.put("total", parseDoubleLocale(columns[5]));
 
                         long id = db.insert(DatabaseHelper.TABLE_ITEMS, null, values);
                         if (id != -1) importedCount++;
@@ -113,12 +114,21 @@ public class CsvHelper {
                 db.setTransactionSuccessful();
                 return importedCount;
             } finally {
-                db.endTransaction();
+                if (db != null) db.endTransaction();
+                if (db != null && db.isOpen()) db.close();
             }
 
         } catch (Exception e) {
             Log.e(TAG, "Import failed", e);
+            if (db != null && db.isOpen()) db.close();
             return -1;
         }
+    }
+
+    // Парсинг double с запятой и точкой
+    private double parseDoubleLocale(String str) {
+        if (str == null) return 0.0;
+        str = str.replace(",", ".").replaceAll("[^\\d.]", "");
+        return Double.parseDouble(str);
     }
 }
