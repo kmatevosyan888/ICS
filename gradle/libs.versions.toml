@@ -25,4 +25,3 @@ zxing-core = { group = "com.google.zxing", name = "core", version.ref = "zxingCo
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
-

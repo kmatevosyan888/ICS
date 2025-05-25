@@ -35,7 +35,10 @@ public class EditItemActivity extends AppCompatActivity {
         etEditQuantity = findViewById(R.id.etEditQuantity);
         etEditBarcode = findViewById(R.id.etEditBarcode);
         etEditTotal = findViewById(R.id.etEditTotal);
-        etEditTotal.setEnabled(false);
+        etEditTotal.setEnabled(true);
+        etEditTotal.setFocusable(true);
+        etEditPrice.setEnabled(false);
+        etEditPrice.setFocusable(false);
         currencySpinner = findViewById(R.id.spinnerEditCurrency);
         btnSave = findViewById(R.id.btnSaveChanges);
 
@@ -45,17 +48,23 @@ public class EditItemActivity extends AppCompatActivity {
     private void loadItemData() {
         Intent intent = getIntent();
         etEditName.setText(intent.getStringExtra("NAME"));
-        etEditPrice.setText(String.valueOf(intent.getDoubleExtra("PRICE", 0)));
-        etEditQuantity.setText(String.valueOf(intent.getIntExtra("QUANTITY", 0)));
         etEditBarcode.setText(intent.getStringExtra("BARCODE"));
         originalBarcode = intent.getStringExtra("BARCODE");
+        etEditQuantity.setText(String.valueOf(intent.getIntExtra("QUANTITY", 0)));
+
+        // ВАЖНО: Сначала получить сумму
+        double total = intent.hasExtra("TOTAL") ? intent.getDoubleExtra("TOTAL", 0) : 0;
+        etEditTotal.setText(total > 0 ? String.format("%.2f", total) : "");
 
         String currency = intent.getStringExtra("CURRENCY");
         setCurrencySelection(currency);
-        calculateTotal();
+
+        // Пересчитать цену (если сумма и количество > 0)
+        calculatePrice();
     }
 
     private void setCurrencySelection(String currency) {
+        if (currency == null) return;
         for (int i = 0; i < currencySpinner.getCount(); i++) {
             if (currencySpinner.getItemAtPosition(i).toString().startsWith(currency)) {
                 currencySpinner.setSelection(i);
@@ -76,24 +85,23 @@ public class EditItemActivity extends AppCompatActivity {
 
     private void setupTextWatchers() {
         TextWatcher textWatcher = new TextWatcher() {
-            @Override public void afterTextChanged(Editable s) { calculateTotal(); }
+            @Override public void afterTextChanged(Editable s) { calculatePrice(); }
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
         };
 
-        etEditPrice.addTextChangedListener(textWatcher);
+        etEditTotal.addTextChangedListener(textWatcher);
         etEditQuantity.addTextChangedListener(textWatcher);
-        etEditBarcode.addTextChangedListener(textWatcher);
     }
 
-    private void calculateTotal() {
+    private void calculatePrice() {
         try {
-            double price = parseDoubleLocale(etEditPrice.getText().toString());
+            double total = parseDoubleLocale(etEditTotal.getText().toString());
             int quantity = Integer.parseInt(etEditQuantity.getText().toString());
-            double total = price * quantity;
-            etEditTotal.setText(String.format("%.2f", total));
-        } catch (NumberFormatException e) {
-            etEditTotal.setText("0.00");
+            double price = (quantity > 0) ? total / quantity : 0.0;
+            etEditPrice.setText(String.format("%.2f", price));
+        } catch (Exception e) {
+            etEditPrice.setText("0.00");
         }
     }
 
@@ -133,19 +141,19 @@ public class EditItemActivity extends AppCompatActivity {
             return false;
         }
         try {
-            double price = parseDoubleLocale(etEditPrice.getText().toString());
-            if (price < 0) {
-                showError("Цена не может быть отрицательной");
+            double total = parseDoubleLocale(etEditTotal.getText().toString());
+            if (total < 0) {
+                showError("Сумма не может быть отрицательной");
                 return false;
             }
         } catch (NumberFormatException e) {
-            showError("Некорректная цена");
+            showError("Некорректная сумма");
             return false;
         }
         try {
             int quantity = Integer.parseInt(etEditQuantity.getText().toString());
-            if (quantity < 0) {
-                showError("Количество не может быть отрицательным");
+            if (quantity <= 0) {
+                showError("Количество должно быть больше нуля");
                 return false;
             }
         } catch (NumberFormatException e) {
@@ -159,10 +167,10 @@ public class EditItemActivity extends AppCompatActivity {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
-    // --- Исправление: корректный парсинг double с запятой и точкой
     private double parseDoubleLocale(String str) {
         if (str == null) return 0.0;
         str = str.replace(",", ".").replaceAll("[^\\d.]", "");
+        if (str.isEmpty()) return 0.0;
         return Double.parseDouble(str);
     }
 }

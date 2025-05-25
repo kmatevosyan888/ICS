@@ -12,7 +12,6 @@
         android:layout_marginTop="100dp"
         android:orientation="horizontal">
 
-
         <EditText
             android:id="@+id/itemBarcode"
             android:layout_width="0dp"
@@ -29,7 +28,7 @@
             android:layout_height="50dp"
             android:backgroundTint="@color/white"
             android:contentDescription="@string/scan_description"
-            android:drawableRight="@drawable/ic_qr"
+            android:drawableEnd="@drawable/ic_qr"
             android:gravity="center"
             android:padding="16dp" />
 
@@ -55,13 +54,14 @@
         android:prompt="@string/select_currency" />
 
     <EditText
-        android:id="@+id/itemPrice"
+        android:id="@+id/itemTotal"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_marginBottom="12dp"
-        android:autofillHints="name"
-        android:hint="@string/edT_Цена"
-        android:inputType="numberDecimal" />
+        android:hint="@string/total"
+        android:inputType="numberDecimal"
+        android:enabled="true"
+        android:focusable="true"
+        android:layout_marginBottom="12dp"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -106,14 +106,14 @@
     </LinearLayout>
 
     <EditText
-        android:id="@+id/itemTotal"
+        android:id="@+id/itemPrice"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:hint="@string/total"
+        android:hint="@string/edT_Цена"
         android:inputType="numberDecimal"
         android:enabled="false"
         android:focusable="false"
-        android:layout_marginBottom="12dp"/>
+        android:layout_marginBottom="12dp" />
 
     <Button
         android:id="@+id/saveButton"

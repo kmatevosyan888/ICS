@@ -27,7 +27,7 @@
             android:layout_height="50dp"
             android:backgroundTint="@color/white"
             android:contentDescription="@string/scan_description"
-            android:drawableRight="@drawable/ic_qr"
+            android:drawableEnd="@drawable/ic_qr"
             android:gravity="center"
             android:padding="16dp" />
 

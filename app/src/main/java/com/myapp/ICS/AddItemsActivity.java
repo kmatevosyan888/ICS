@@ -35,7 +35,8 @@ public class AddItemsActivity extends AppCompatActivity {
         itemPrice = findViewById(R.id.itemPrice);
         itemQuantity = findViewById(R.id.itemQuantity);
         itemTotal = findViewById(R.id.itemTotal);
-        itemTotal.setEnabled(false);
+        itemTotal.setEnabled(true);
+        itemPrice.setEnabled(false);
         currencySpinner = findViewById(R.id.currencySpinner);
 
         Button saveButton = findViewById(R.id.saveButton);
@@ -64,21 +65,21 @@ public class AddItemsActivity extends AppCompatActivity {
         TextWatcher textWatcher = new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
-            @Override public void afterTextChanged(Editable s) { calculateTotal(); }
+            @Override public void afterTextChanged(Editable s) { calculatePrice(); }
         };
 
-        itemPrice.addTextChangedListener(textWatcher);
+        itemTotal.addTextChangedListener(textWatcher);
         itemQuantity.addTextChangedListener(textWatcher);
     }
 
-    private void calculateTotal() {
+    private void calculatePrice() {
         try {
-            double price = parseDoubleLocale(itemPrice.getText().toString());
+            double total = parseDoubleLocale(itemTotal.getText().toString());
             int quantity = Integer.parseInt(itemQuantity.getText().toString());
-            double total = price * quantity;
-            itemTotal.setText(String.format("%.2f", total));
+            double price = (quantity > 0) ? total / quantity : 0.0;
+            itemPrice.setText(String.format("%.2f", price));
         } catch (NumberFormatException e) {
-            itemTotal.setText("0.00");
+            itemPrice.setText("0.00");
         }
     }
 
@@ -86,7 +87,7 @@ public class AddItemsActivity extends AppCompatActivity {
         int quantity = getCurrentQuantity() + delta;
         if (quantity >= 0) {
             itemQuantity.setText(String.valueOf(quantity));
-            calculateTotal();
+            calculatePrice();
         }
     }
 
@@ -127,23 +128,23 @@ public class AddItemsActivity extends AppCompatActivity {
             showError("Введите штрих-код");
             return false;
         }
-        if (TextUtils.isEmpty(itemPrice.getText())) {
-            showError("Введите цену");
+        if (TextUtils.isEmpty(itemTotal.getText())) {
+            showError("Введите сумму");
             return false;
         }
         try {
-            double price = parseDoubleLocale(itemPrice.getText().toString());
-            if (price < 0) {
-                showError("Цена не может быть отрицательной");
+            double total = parseDoubleLocale(itemTotal.getText().toString());
+            if (total < 0) {
+                showError("Сумма не может быть отрицательной");
                 return false;
             }
         } catch (NumberFormatException e) {
-            showError("Некорректная цена");
+            showError("Некорректная сумма");
             return false;
         }
         int quantity = getCurrentQuantity();
-        if (quantity < 0) {
-            showError("Количество не может быть отрицательным");
+        if (quantity <= 0) {
+            showError("Количество должно быть больше нуля");
             return false;
         }
         return true;
@@ -173,13 +174,12 @@ public class AddItemsActivity extends AppCompatActivity {
     private void clearFields() {
         itemName.getText().clear();
         itemBarcode.getText().clear();
-        itemPrice.getText().clear();
+        itemTotal.getText().clear();
+        itemPrice.setText("0.00");
         itemQuantity.setText("0");
-        itemTotal.setText("0.00");
         currencySpinner.setSelection(0);
     }
 
-    // --- Исправление: корректный парсинг double с запятой и точкой
     private double parseDoubleLocale(String str) {
         if (str == null) return 0.0;
         str = str.replace(",", ".").replaceAll("[^\\d.]", "");

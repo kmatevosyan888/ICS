@@ -106,6 +106,7 @@ public class StockAdapter extends RecyclerView.Adapter<StockAdapter.ViewHolder> 
             intent.putExtra("PRICE", item.getUnitPrice());
             intent.putExtra("QUANTITY", item.getQuantity());
             intent.putExtra("CURRENCY", item.getCurrency());
+            intent.putExtra("TOTAL", item.getTotal());
             itemView.getContext().startActivity(intent);
         }
 

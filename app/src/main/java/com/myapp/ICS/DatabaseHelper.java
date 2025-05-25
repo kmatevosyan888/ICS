@@ -75,8 +75,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             cursor.close();
         }
     }
-    public boolean addItem(String name, String barcode, double price,
-                           int quantity, String currency, double total) {
+    public boolean addItem(String name, String barcode, double price, int quantity, String currency, double total) {
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery("SELECT " + COLUMN_QUANTITY + ", " + COLUMN_TOTAL + " FROM " + TABLE_ITEMS + " WHERE " + COLUMN_BARCODE + " = ?", new String[]{barcode});
         boolean updated = false;
@@ -85,11 +84,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             if (cursor.moveToFirst()) {
                 // Товар уже есть, увеличиваем количество и сумму
                 int oldQuantity = cursor.getInt(0);
+                double oldTotal = cursor.getDouble(1);
+
                 int newQuantity = oldQuantity + quantity;
-                double newTotal = price * newQuantity;
+                double newTotal = oldTotal + total;
+                double newPrice = (newQuantity > 0) ? newTotal / newQuantity : 0.0;
+
                 ContentValues values = new ContentValues();
                 values.put(COLUMN_NAME, name);
-                values.put(COLUMN_PRICE, price);
+                values.put(COLUMN_PRICE, newPrice);
                 values.put(COLUMN_QUANTITY, newQuantity);
                 values.put(COLUMN_CURRENCY, currency);
                 values.put(COLUMN_TOTAL, newTotal);
@@ -121,11 +124,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 return false;
             }
         }
+        double autoPrice = (newQuantity > 0) ? newTotal / newQuantity : 0.0;
+
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_BARCODE, newBarcode);
         values.put(COLUMN_NAME, newName);
-        values.put(COLUMN_PRICE, newPrice);
+        values.put(COLUMN_PRICE, autoPrice);
         values.put(COLUMN_QUANTITY, newQuantity);
         values.put(COLUMN_CURRENCY, newCurrency);
         values.put(COLUMN_TOTAL, newTotal);

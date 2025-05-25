@@ -10,6 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:hint="@string/edT_Код"
+        android:layout_marginBottom="12dp"
         android:inputType="text"/>
 
     <EditText
@@ -21,12 +22,14 @@
         android:inputType="text"/>
 
     <EditText
-        android:id="@+id/etEditPrice"
+        android:id="@+id/etEditTotal"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_marginBottom="12dp"
-        android:hint="@string/edT_Цена"
-        android:inputType="numberDecimal"/>
+        android:hint="@string/total"
+        android:inputType="numberDecimal"
+        android:enabled="true"
+        android:focusable="true"
+        android:layout_marginBottom="12dp"/>
 
     <EditText
         android:id="@+id/etEditQuantity"
@@ -37,10 +40,11 @@
         android:inputType="number"/>
 
     <EditText
-        android:id="@+id/etEditTotal"
+        android:id="@+id/etEditPrice"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:hint="@string/total"
+        android:layout_marginBottom="12dp"
+        android:hint="@string/edT_Цена"
         android:inputType="numberDecimal"
         android:enabled="false"
         android:focusable="false"/>
@@ -62,5 +66,4 @@
         android:backgroundTint="@color/purple1"
         android:textColor="@android:color/white"
         android:text="@string/btn_Сохранить_изменения"/>
-
 </LinearLayout>

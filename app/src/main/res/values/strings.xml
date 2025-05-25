@@ -8,7 +8,7 @@
     <string name="edT_Код">Код</string>
     <string name="edT_Количество">Количество</string>
     <string name="edT_Цена">Цена за штуку</string>
-    <string name="btn_Выводить">Выводить товар</string>
+    <string name="btn_Выводить">Списать товар</string>
     <string name="btn_minus">-</string>
     <string name="btn_plus">+</string>
     <string name="edT_0">0</string>

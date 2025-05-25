@@ -87,7 +87,7 @@ public class ViewStockActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == 101 && grantResults.length > 0
                 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            importLauncher.launch("text/comma-separated-values");
+            importLauncher.launch("*/*");
         }
     }
 
@@ -148,19 +148,6 @@ public class ViewStockActivity extends AppCompatActivity {
             } else {
                 importLauncher.launch("*/*");
             }
-        }
-        Log.d(TAG, "checkStoragePermission() called");
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "Permission not granted, requesting...");
-            ActivityCompat.requestPermissions(
-                    this,
-                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                    101
-            );
-        } else {
-            Log.d(TAG, "Permission already granted, launching file picker");
-            importLauncher.launch("text/comma-separated-values");
         }
     }
 
