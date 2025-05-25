@@ -10,10 +10,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import java.text.NumberFormat;
-import java.util.Currency;
 import java.util.List;
-import java.util.Locale;
 
 public class StockAdapter extends RecyclerView.Adapter<StockAdapter.ViewHolder> {
     private List<Item> itemList;
@@ -44,28 +41,34 @@ public class StockAdapter extends RecyclerView.Adapter<StockAdapter.ViewHolder> 
         holder.tvPrice.setText(formatPrice(item));
         holder.tvQuantity.setText("Количество: " + item.getQuantity());
         holder.tvTotal.setText(formatTotal(item));
+        holder.tvCurrency.setText(""); // если не нужен отдельный вывод валюты
     }
 
     private String formatPrice(Item item) {
-        NumberFormat format = NumberFormat.getNumberInstance(Locale.getDefault());
-        return String.format("Цена: %s%s",
-                getCurrencySymbol(item.getCurrency()),
-                format.format(item.getUnitPrice()));
+        return String.format("Цена: %s %s",
+                formatDecimal(item.getUnitPrice()),
+                getCurrencySymbol(item.getCurrency()));
     }
 
     private String formatTotal(Item item) {
-        NumberFormat format = NumberFormat.getCurrencyInstance(Locale.getDefault());
-        format.setCurrency(Currency.getInstance(item.getCurrency()));
-        return "Сумма: " + format.format(item.getTotal());
+        return String.format("Сумма: %s %s",
+                formatDecimal(item.getTotal()),
+                getCurrencySymbol(item.getCurrency()));
     }
 
     private String getCurrencySymbol(String currency) {
+        if (currency == null) return "֏";
         switch (currency) {
             case "USD": return "$";
             case "EUR": return "€";
             case "AMD": return "֏";
-            default: return "₽";
+            case "RUB": return "₽";
+            default: return "֏";
         }
+    }
+
+    private String formatDecimal(double value) {
+        return String.format("%.2f", value).replace('.', ',');
     }
 
     @Override
@@ -74,7 +77,7 @@ public class StockAdapter extends RecyclerView.Adapter<StockAdapter.ViewHolder> 
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvName, tvCode, tvPrice, tvQuantity, tvTotal;
+        TextView tvName, tvCode, tvPrice, tvQuantity, tvTotal, tvCurrency;
         ImageButton btnEdit, btnDelete;
 
         public ViewHolder(@NonNull View itemView) {
@@ -84,6 +87,7 @@ public class StockAdapter extends RecyclerView.Adapter<StockAdapter.ViewHolder> 
             tvPrice = itemView.findViewById(R.id.tvItemPrice);
             tvQuantity = itemView.findViewById(R.id.tvItemQuantity);
             tvTotal = itemView.findViewById(R.id.tvItemTotal);
+            tvCurrency = itemView.findViewById(R.id.tvItemCurrency);
             btnEdit = itemView.findViewById(R.id.btnEdit);
             btnDelete = itemView.findViewById(R.id.btnDelete);
 

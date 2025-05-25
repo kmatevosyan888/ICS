@@ -16,6 +16,7 @@ public class RemoveItemsActivity extends AppCompatActivity {
     private EditText itemBarcodeToRemove, itemName, itemQuantity, itemTotal;
     private DatabaseHelper dbHelper;
     private Item currentItem;
+    private boolean notFoundShown = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +27,10 @@ public class RemoveItemsActivity extends AppCompatActivity {
         initViews();
         setupQuantityButtons();
         setupBarcodeListener();
+
+        itemTotal.setOnFocusChangeListener((v, hasFocus) -> {
+            if (!hasFocus) formatEditTextToTwoDecimals(itemTotal);
+        });
     }
 
     private void initViews() {
@@ -48,6 +53,23 @@ public class RemoveItemsActivity extends AppCompatActivity {
         });
     }
 
+    private void setupBarcodeListener() {
+        itemBarcodeToRemove.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override public void afterTextChanged(Editable s) {
+                if (s.length() > 0) {
+                    checkBarcodeAndLoadDetails();
+                } else {
+                    clearItemDetails();
+                    notFoundShown = false;
+                }
+            }
+        });
+    }
+
     private void startScanner() {
         Intent intent = new Intent(this, ScannerActivity.class);
         startActivityForResult(intent, SCAN_REQUEST_CODE);
@@ -59,14 +81,7 @@ public class RemoveItemsActivity extends AppCompatActivity {
         if (requestCode == SCAN_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
             String result = data.getStringExtra(ScannerActivity.SCAN_RESULT);
             itemBarcodeToRemove.setText(result);
-            checkBarcodeAndLoadDetails();
         }
-    }
-
-    private void setupBarcodeListener() {
-        itemBarcodeToRemove.setOnFocusChangeListener((v, hasFocus) -> {
-            if (!hasFocus) checkBarcodeAndLoadDetails();
-        });
     }
 
     private void checkBarcodeAndLoadDetails() {
@@ -75,10 +90,17 @@ public class RemoveItemsActivity extends AppCompatActivity {
             currentItem = dbHelper.getItemByBarcode(barcode);
             if (currentItem != null) {
                 updateItemDetails();
+                notFoundShown = false;
             } else {
                 clearItemDetails();
-                showError("Товар не найден");
+                if (!notFoundShown) {
+                    showError("Товар не найден");
+                    notFoundShown = true;
+                }
             }
+        } else {
+            clearItemDetails();
+            notFoundShown = false;
         }
     }
 
@@ -91,7 +113,8 @@ public class RemoveItemsActivity extends AppCompatActivity {
     private void clearItemDetails() {
         itemName.setText("");
         itemQuantity.setText("0");
-        itemTotal.setText("0.00");
+        itemTotal.setText("0,00");
+        currentItem = null;
     }
 
     private void setupQuantityButtons() {
@@ -119,11 +142,15 @@ public class RemoveItemsActivity extends AppCompatActivity {
             try {
                 int quantity = Integer.parseInt(itemQuantity.getText().toString());
                 double total = currentItem.getUnitPrice() * quantity;
-                itemTotal.setText(String.format("%.2f %s", total, getCurrencySymbol()));
+                itemTotal.setText(formatDecimal(total) + " " + getCurrencySymbol());
             } catch (NumberFormatException e) {
-                itemTotal.setText("0.00");
+                itemTotal.setText("0,00");
             }
         }
+    }
+
+    private String formatDecimal(double value) {
+        return String.format("%.2f", value).replace('.', ',');
     }
 
     private String getCurrencySymbol() {
@@ -186,8 +213,9 @@ public class RemoveItemsActivity extends AppCompatActivity {
         itemBarcodeToRemove.getText().clear();
         itemName.getText().clear();
         itemQuantity.setText("0");
-        itemTotal.setText("0.00");
+        itemTotal.setText("0,00");
         currentItem = null;
+        notFoundShown = false;
     }
 
     private void showError(String message) {
@@ -196,5 +224,13 @@ public class RemoveItemsActivity extends AppCompatActivity {
 
     private void showSuccess(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    private void formatEditTextToTwoDecimals(EditText editText) {
+        String input = editText.getText().toString().replace(',', '.');
+        try {
+            double value = Double.parseDouble(input);
+            editText.setText(formatDecimal(value));
+        } catch (Exception ignored) {}
     }
 }

@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="@color/background_color"
     android:importantForAutofill="noExcludeDescendants"
     android:padding="16dp">
 
@@ -21,6 +22,7 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
+            android:backgroundTint="@color/button_color"
             android:text="@string/export_csv"
             android:layout_marginEnd="4dp"/>
 
@@ -31,8 +33,20 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="@string/import_csv"
+            android:backgroundTint="@color/button_color"
+
             android:layout_marginStart="4dp"/>
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/Third"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/third"
+        android:textColor="@color/dark_green"
+        android:textSize="25sp"
+        android:textStyle="bold"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"

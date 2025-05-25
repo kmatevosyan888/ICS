@@ -1,10 +1,21 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white"
+    android:background="@color/background_color"
     android:orientation="vertical"
     android:importantForAutofill="noExcludeDescendants"
     android:padding="16dp">
+
+    <TextView
+        android:id="@+id/First"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/first"
+        android:textColor="@color/dark_green"
+        android:layout_marginTop="10dp"
+        android:textSize="30sp"
+        android:textStyle="bold"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -26,7 +37,7 @@
             android:id="@+id/btnScanAdd"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:backgroundTint="@color/white"
+            android:backgroundTint="@color/background_color"
             android:contentDescription="@string/scan_description"
             android:drawableEnd="@drawable/ic_qr"
             android:gravity="center"
@@ -113,7 +124,8 @@
         android:inputType="numberDecimal"
         android:enabled="false"
         android:focusable="false"
-        android:layout_marginBottom="12dp" />
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="10dp" />
 
     <Button
         android:id="@+id/saveButton"
@@ -122,7 +134,7 @@
         android:layout_gravity="center"
         android:layout_marginTop="30dp"
         android:text="@string/btn_Сохранить"
-        android:backgroundTint="@color/purple1"
+        android:backgroundTint="@color/button_color"
         android:textColor="@android:color/white" />
 
 </LinearLayout>

@@ -17,16 +17,26 @@ public class AddItemsActivity extends AppCompatActivity {
 
     private EditText itemName, itemBarcode, itemPrice, itemQuantity, itemTotal;
     private Spinner currencySpinner;
+    private DatabaseHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_item);
 
+        dbHelper = new DatabaseHelper(this);
         initViews();
         setupCurrencySpinner();
         setupQuantityButtons();
         setupTextWatchers();
+        setupBarcodeListener();
+
+        itemTotal.setOnFocusChangeListener((v, hasFocus) -> {
+            if (!hasFocus) formatEditTextToTwoDecimals(itemTotal);
+        });
+        itemPrice.setOnFocusChangeListener((v, hasFocus) -> {
+            if (!hasFocus) formatEditTextToTwoDecimals(itemPrice);
+        });
     }
 
     private void initViews() {
@@ -77,9 +87,32 @@ public class AddItemsActivity extends AppCompatActivity {
             double total = parseDoubleLocale(itemTotal.getText().toString());
             int quantity = Integer.parseInt(itemQuantity.getText().toString());
             double price = (quantity > 0) ? total / quantity : 0.0;
-            itemPrice.setText(String.format("%.2f", price));
+            itemPrice.setText(formatDecimal(price));
         } catch (NumberFormatException e) {
-            itemPrice.setText("0.00");
+            itemPrice.setText("0,00");
+        }
+    }
+
+    private void setupBarcodeListener() {
+        itemBarcode.setOnFocusChangeListener((v, hasFocus) -> {
+            if (!hasFocus) checkBarcodeAndFillName();
+        });
+        itemBarcode.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override public void afterTextChanged(Editable s) {
+                if (s.length() >= 1) checkBarcodeAndFillName();
+            }
+        });
+    }
+
+    private void checkBarcodeAndFillName() {
+        String barcode = itemBarcode.getText().toString().trim();
+        if (!TextUtils.isEmpty(barcode)) {
+            Item found = dbHelper.getItemByBarcode(barcode);
+            if (found != null) {
+                itemName.setText(found.getName());
+            }
         }
     }
 
@@ -107,13 +140,21 @@ public class AddItemsActivity extends AppCompatActivity {
     private void saveItemToDatabase() {
         if (!validateInput()) return;
 
-        DatabaseHelper dbHelper = new DatabaseHelper(this);
+        String barcode = itemBarcode.getText().toString().trim();
+        String selectedCurrency = currencySpinner.getSelectedItem().toString().split(" ")[0];
+        Item found = dbHelper.getItemByBarcode(barcode);
+
+        if (found != null && !found.getCurrency().equals(selectedCurrency)) {
+            showError("Этот товар добавлен в валюте: " + found.getCurrency() + ". Добавлять в другой валюте нельзя!");
+            return;
+        }
+
         boolean success = dbHelper.addItem(
                 itemName.getText().toString(),
-                itemBarcode.getText().toString(),
+                barcode,
                 parseDoubleLocale(itemPrice.getText().toString()),
                 getCurrentQuantity(),
-                currencySpinner.getSelectedItem().toString().split(" ")[0],
+                selectedCurrency,
                 parseDoubleLocale(itemTotal.getText().toString())
         );
         showResult(success);
@@ -174,8 +215,8 @@ public class AddItemsActivity extends AppCompatActivity {
     private void clearFields() {
         itemName.getText().clear();
         itemBarcode.getText().clear();
-        itemTotal.getText().clear();
-        itemPrice.setText("0.00");
+        itemTotal.setText("0,00");
+        itemPrice.setText("0,00");
         itemQuantity.setText("0");
         currencySpinner.setSelection(0);
     }
@@ -183,6 +224,19 @@ public class AddItemsActivity extends AppCompatActivity {
     private double parseDoubleLocale(String str) {
         if (str == null) return 0.0;
         str = str.replace(",", ".").replaceAll("[^\\d.]", "");
+        if (str.isEmpty()) return 0.0;
         return Double.parseDouble(str);
+    }
+
+    private void formatEditTextToTwoDecimals(EditText editText) {
+        String input = editText.getText().toString().replace(',', '.');
+        try {
+            double value = Double.parseDouble(input);
+            editText.setText(formatDecimal(value));
+        } catch (Exception ignored) {}
+    }
+
+    private String formatDecimal(double value) {
+        return String.format("%.2f", value).replace('.', ',');
     }
 }

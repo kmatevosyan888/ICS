@@ -4,6 +4,9 @@
     <string name="btn2">Снять со склада</string>
     <string name="btn3">Остаток товаров</string>
     <string name="textV_ICS">Система управления инвентаря</string>
+    <string name="first">Добавление товаров</string>
+    <string name="second">Списание товаров</string>
+    <string name="third">Товары на складе</string>
     <string name="edT_Название">Название товара</string>
     <string name="edT_Код">Код</string>
     <string name="edT_Количество">Количество</string>
@@ -16,10 +19,10 @@
     <string name="btn_Сохранить_изменения">Сохранить изменения</string>
     <string name="scan_description">Сканировать QR или Штрих код</string>
     <string-array name="currencies">
+        <item>AMD - Армянский драм</item>
         <item>RUB - Российский рубль</item>
         <item>USD - Доллар США</item>
         <item>EUR - Евро</item>
-        <item>AMD - Армянский драм</item>
     </string-array>
     <string name="select_currency">Выберите валюту</string>
     <string name="edit_item">Редактировать товар</string>

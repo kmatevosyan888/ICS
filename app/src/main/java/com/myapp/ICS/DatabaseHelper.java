@@ -7,7 +7,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
-
 import java.util.LinkedList;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
@@ -51,7 +50,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             int idxQuantity = cursor.getColumnIndex(COLUMN_QUANTITY);
 
             if (idxId == -1 || idxPrice == -1 || idxQuantity == -1) {
-                // Логируем ошибку — структура таблицы неожиданна
                 Log.e("DBUpgrade", "One or more columns not found in table!");
                 cursor.close();
                 return;
@@ -75,14 +73,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             cursor.close();
         }
     }
+
     public boolean addItem(String name, String barcode, double price, int quantity, String currency, double total) {
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.rawQuery("SELECT " + COLUMN_QUANTITY + ", " + COLUMN_TOTAL + " FROM " + TABLE_ITEMS + " WHERE " + COLUMN_BARCODE + " = ?", new String[]{barcode});
+        Cursor cursor = db.rawQuery("SELECT " + COLUMN_QUANTITY + ", " + COLUMN_TOTAL + ", " + COLUMN_CURRENCY
+                + " FROM " + TABLE_ITEMS + " WHERE " + COLUMN_BARCODE + " = ?", new String[]{barcode});
         boolean updated = false;
 
         try {
             if (cursor.moveToFirst()) {
-                // Товар уже есть, увеличиваем количество и сумму
+                String existingCurrency = cursor.getString(2);
+                if (!existingCurrency.equals(currency)) {
+                    return false; // Не обновлять если валюта не совпадает!
+                }
                 int oldQuantity = cursor.getInt(0);
                 double oldTotal = cursor.getDouble(1);
 
@@ -94,12 +97,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 values.put(COLUMN_NAME, name);
                 values.put(COLUMN_PRICE, newPrice);
                 values.put(COLUMN_QUANTITY, newQuantity);
-                values.put(COLUMN_CURRENCY, currency);
                 values.put(COLUMN_TOTAL, newTotal);
+
                 int result = db.update(TABLE_ITEMS, values, COLUMN_BARCODE + " = ?", new String[]{barcode});
                 updated = (result > 0);
             } else {
-                // Товара нет, добавляем новый
                 ContentValues values = new ContentValues();
                 values.put(COLUMN_NAME, name);
                 values.put(COLUMN_BARCODE, barcode);

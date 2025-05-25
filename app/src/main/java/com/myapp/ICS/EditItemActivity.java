@@ -27,6 +27,13 @@ public class EditItemActivity extends AppCompatActivity {
         setupCurrencySpinner();
         setupTextWatchers();
         loadItemData();
+
+        etEditTotal.setOnFocusChangeListener((v, hasFocus) -> {
+            if (!hasFocus) formatEditTextToTwoDecimals(etEditTotal);
+        });
+        etEditPrice.setOnFocusChangeListener((v, hasFocus) -> {
+            if (!hasFocus) formatEditTextToTwoDecimals(etEditPrice);
+        });
     }
 
     private void initViews() {
@@ -52,14 +59,10 @@ public class EditItemActivity extends AppCompatActivity {
         originalBarcode = intent.getStringExtra("BARCODE");
         etEditQuantity.setText(String.valueOf(intent.getIntExtra("QUANTITY", 0)));
 
-        // ВАЖНО: Сначала получить сумму
         double total = intent.hasExtra("TOTAL") ? intent.getDoubleExtra("TOTAL", 0) : 0;
-        etEditTotal.setText(total > 0 ? String.format("%.2f", total) : "");
-
+        etEditTotal.setText(formatDecimal(total));
         String currency = intent.getStringExtra("CURRENCY");
         setCurrencySelection(currency);
-
-        // Пересчитать цену (если сумма и количество > 0)
         calculatePrice();
     }
 
@@ -99,9 +102,9 @@ public class EditItemActivity extends AppCompatActivity {
             double total = parseDoubleLocale(etEditTotal.getText().toString());
             int quantity = Integer.parseInt(etEditQuantity.getText().toString());
             double price = (quantity > 0) ? total / quantity : 0.0;
-            etEditPrice.setText(String.format("%.2f", price));
+            etEditPrice.setText(formatDecimal(price));
         } catch (Exception e) {
-            etEditPrice.setText("0.00");
+            etEditPrice.setText("0,00");
         }
     }
 
@@ -172,5 +175,17 @@ public class EditItemActivity extends AppCompatActivity {
         str = str.replace(",", ".").replaceAll("[^\\d.]", "");
         if (str.isEmpty()) return 0.0;
         return Double.parseDouble(str);
+    }
+
+    private void formatEditTextToTwoDecimals(EditText editText) {
+        String input = editText.getText().toString().replace(',', '.');
+        try {
+            double value = Double.parseDouble(input);
+            editText.setText(formatDecimal(value));
+        } catch (Exception ignored) {}
+    }
+
+    private String formatDecimal(double value) {
+        return String.format("%.2f", value).replace('.', ',');
     }
 }

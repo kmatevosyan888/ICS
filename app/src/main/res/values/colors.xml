@@ -9,8 +9,9 @@
     <color name="flash_active_tint">#FFD700</color>
     <color name="button_background">#6F5CAD</color>
     <color name="grey">#A2B8BE</color>
-    <color name="dark_grey">#61717E</color>
+    <color name="button_color">#61717E</color>
     <color name="dark_green">#3A4646</color>
-    <color name="light_green">#B4D4C0</color>
+    <color name="background_color2">#B4D4C0</color>
+    <color name="background_color">#BCD3C5</color>
     <color name="grey_green">#9EB4B8</color>
 </resources>

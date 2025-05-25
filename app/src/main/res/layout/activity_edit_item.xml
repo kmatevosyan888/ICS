@@ -2,6 +2,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="@color/background_color"
     android:importantForAutofill="noExcludeDescendants"
     android:padding="16dp">
 
@@ -63,7 +64,7 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_marginTop="30dp"
-        android:backgroundTint="@color/purple1"
+        android:backgroundTint="@color/button_color"
         android:textColor="@android:color/white"
         android:text="@string/btn_Сохранить_изменения"/>
 </LinearLayout>
