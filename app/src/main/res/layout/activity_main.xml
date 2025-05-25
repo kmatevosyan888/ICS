@@ -7,6 +7,14 @@
     android:background="@color/background_color"
     android:padding="16dp">
 
+    <ImageView
+        android:id="@+id/appLogo"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
+        android:layout_gravity="center_horizontal"
+        android:src="@mipmap/ic_launcher"
+        android:contentDescription="@string/app_name"
+        android:layout_marginBottom="20dp"/>
 
     <TextView
         android:id="@+id/textICS"
@@ -15,7 +23,7 @@
         android:gravity="center"
         android:text="@string/textV_ICS"
         android:textColor="@color/dark_green"
-        android:textSize="35sp"
+        android:textSize="30sp"
         android:textStyle="bold"/>
 
     <Button
