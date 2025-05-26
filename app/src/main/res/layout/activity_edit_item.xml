@@ -37,14 +37,25 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:hint="@string/edT_Количество"
-        android:layout_marginBottom="12dp"
+        android:layout_marginBottom="5dp"
         android:inputType="number"/>
+
+    <Spinner
+        android:id="@+id/spinnerEditUnit"
+        android:layout_width="match_parent"
+        android:layout_height="49dp"
+        android:layout_marginTop="8dp"
+        android:entries="@array/unit_types"
+        android:minHeight="48dp"
+        android:layout_marginBottom="12dp"
+
+        android:prompt="@string/select_unit" />
 
     <EditText
         android:id="@+id/etEditPrice"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_marginBottom="12dp"
+        android:layout_marginBottom="5dp"
         android:hint="@string/edT_Цена"
         android:inputType="numberDecimal"
         android:enabled="false"
@@ -53,7 +64,7 @@
     <Spinner
         android:id="@+id/spinnerEditCurrency"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
+        android:layout_height="49dp"
         android:layout_marginTop="8dp"
         android:entries="@array/currencies"
         android:minHeight="48dp"

@@ -7,15 +7,17 @@ public class Item {
     private int quantity;
     private String currency;
     private double total;
+    private String unit;
 
     public Item(String code, String name, double unitPrice,
-                int quantity, String currency, double total) {
+                int quantity, String currency, double total, String unit) {
         this.code = code;
         this.name = name;
         this.unitPrice = unitPrice;
         this.quantity = quantity;
         this.currency = currency;
         this.total = total;
+        this.unit = unit;
     }
     public String getCode() { return code; }
     public String getName() { return name; }
@@ -27,4 +29,6 @@ public class Item {
         this.total = this.unitPrice * quantity;
     }
     public double getTotal() { return total; }
+    public String getUnit() { return unit; }
+    public void setUnit(String unit) { this.unit = unit; }
 }

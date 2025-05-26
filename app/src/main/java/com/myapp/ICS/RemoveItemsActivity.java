@@ -7,6 +7,7 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -14,6 +15,8 @@ public class RemoveItemsActivity extends AppCompatActivity {
     private static final int SCAN_REQUEST_CODE = 1002;
 
     private EditText itemBarcodeToRemove, itemName, itemQuantity, itemTotal;
+    private TextView tvUnitRemove;
+
     private DatabaseHelper dbHelper;
     private Item currentItem;
     private boolean notFoundShown = false;
@@ -39,7 +42,7 @@ public class RemoveItemsActivity extends AppCompatActivity {
         itemQuantity = findViewById(R.id.itemQuantity);
         itemTotal = findViewById(R.id.itemTotalRemove);
         itemTotal.setEnabled(false);
-
+        tvUnitRemove = findViewById(R.id.tvUnitRemove);
         Button removeButton = findViewById(R.id.removeButton);
         Button scanButton = findViewById(R.id.btnScanRemove);
 
@@ -107,6 +110,7 @@ public class RemoveItemsActivity extends AppCompatActivity {
     private void updateItemDetails() {
         itemName.setText(currentItem.getName());
         itemQuantity.setText("1");
+        tvUnitRemove.setText(getUnitWithCorrectForm(currentItem.getUnit(), 1));
         calculateTotal();
     }
 
@@ -143,10 +147,18 @@ public class RemoveItemsActivity extends AppCompatActivity {
                 int quantity = Integer.parseInt(itemQuantity.getText().toString());
                 double total = currentItem.getUnitPrice() * quantity;
                 itemTotal.setText(formatDecimal(total) + " " + getCurrencySymbol());
+                tvUnitRemove.setText(getUnitWithCorrectForm(currentItem.getUnit(), quantity));
             } catch (NumberFormatException e) {
                 itemTotal.setText("0,00");
             }
         }
+    }
+
+    private String getUnitWithCorrectForm(String unit, int quantity) {
+        if (!unit.equals("штук")) return unit;
+        if (quantity % 10 == 1 && quantity % 100 != 11) return "штука";
+        if (quantity % 10 >= 2 && quantity % 10 <= 4 && (quantity % 100 < 10 || quantity % 100 >= 20)) return "штуки";
+        return "штук";
     }
 
     private String formatDecimal(double value) {

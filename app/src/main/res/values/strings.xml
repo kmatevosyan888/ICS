@@ -36,5 +36,11 @@
     <string name="export_error">Ошибка экспорта</string>
     <string name="import_success">Импортировано записей: %d</string>
     <string name="total">Сумма</string>
-
+    <string name="select_unit">Выберите единицу</string>
+    <string-array name="unit_types">
+        <item>штук</item>
+        <item>кг</item>
+        <item>литр</item>
+        <item>компл.</item>
+    </string-array>
 </resources>

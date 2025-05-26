@@ -39,11 +39,18 @@ public class StockAdapter extends RecyclerView.Adapter<StockAdapter.ViewHolder> 
         holder.tvName.setText(item.getName());
         holder.tvCode.setText("Код: " + item.getCode());
         holder.tvPrice.setText(formatPrice(item));
-        holder.tvQuantity.setText("Количество: " + item.getQuantity());
+        holder.tvQuantity.setText("Количество: " + item.getQuantity() + " " + getUnitWithCorrectForm(item.getUnit(), item.getQuantity()));
+        holder.tvUnit.setText("");
         holder.tvTotal.setText(formatTotal(item));
-        holder.tvCurrency.setText(""); // если не нужен отдельный вывод валюты
+        holder.tvCurrency.setText("");
     }
 
+    private String getUnitWithCorrectForm(String unit, int quantity) {
+        if (!unit.equals("штук")) return unit;
+        if (quantity % 10 == 1 && quantity % 100 != 11) return "штука";
+        if (quantity % 10 >= 2 && quantity % 10 <= 4 && (quantity % 100 < 10 || quantity % 100 >= 20)) return "штуки";
+        return "штук";
+    }
     private String formatPrice(Item item) {
         return String.format("Цена: %s %s",
                 formatDecimal(item.getUnitPrice()),
@@ -77,7 +84,7 @@ public class StockAdapter extends RecyclerView.Adapter<StockAdapter.ViewHolder> 
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvName, tvCode, tvPrice, tvQuantity, tvTotal, tvCurrency;
+        TextView tvName, tvCode, tvPrice, tvQuantity, tvTotal, tvCurrency, tvUnit;
         ImageButton btnEdit, btnDelete;
 
         public ViewHolder(@NonNull View itemView) {
@@ -86,6 +93,7 @@ public class StockAdapter extends RecyclerView.Adapter<StockAdapter.ViewHolder> 
             tvCode = itemView.findViewById(R.id.tvItemCode);
             tvPrice = itemView.findViewById(R.id.tvItemPrice);
             tvQuantity = itemView.findViewById(R.id.tvItemQuantity);
+            tvUnit = itemView.findViewById(R.id.tvItemUnit);
             tvTotal = itemView.findViewById(R.id.tvItemTotal);
             tvCurrency = itemView.findViewById(R.id.tvItemCurrency);
             btnEdit = itemView.findViewById(R.id.btnEdit);
@@ -111,6 +119,7 @@ public class StockAdapter extends RecyclerView.Adapter<StockAdapter.ViewHolder> 
             intent.putExtra("QUANTITY", item.getQuantity());
             intent.putExtra("CURRENCY", item.getCurrency());
             intent.putExtra("TOTAL", item.getTotal());
+            intent.putExtra("UNIT", item.getUnit());
             itemView.getContext().startActivity(intent);
         }
 

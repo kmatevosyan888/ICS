@@ -14,8 +14,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class EditItemActivity extends AppCompatActivity {
     private EditText etEditName, etEditPrice, etEditQuantity, etEditBarcode, etEditTotal;
-    Button btnSave;
-    private Spinner currencySpinner;
+    private Spinner spinnerEditCurrency, spinnerEditUnit;
+    private Button btnSave;
     private String originalBarcode;
 
     @Override
@@ -25,6 +25,7 @@ public class EditItemActivity extends AppCompatActivity {
 
         initViews();
         setupCurrencySpinner();
+        setupUnitSpinner();
         setupTextWatchers();
         loadItemData();
 
@@ -46,10 +47,42 @@ public class EditItemActivity extends AppCompatActivity {
         etEditTotal.setFocusable(true);
         etEditPrice.setEnabled(false);
         etEditPrice.setFocusable(false);
-        currencySpinner = findViewById(R.id.spinnerEditCurrency);
+        spinnerEditCurrency = findViewById(R.id.spinnerEditCurrency);
+        spinnerEditUnit = findViewById(R.id.spinnerEditUnit); // Новый Spinner для единицы
         btnSave = findViewById(R.id.btnSaveChanges);
 
         btnSave.setOnClickListener(v -> saveChanges());
+    }
+
+    private void setupCurrencySpinner() {
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+                this,
+                R.array.currencies,
+                android.R.layout.simple_spinner_item
+        );
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerEditCurrency.setAdapter(adapter);
+    }
+
+    private void setupUnitSpinner() {
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+                this,
+                R.array.unit_types,
+                android.R.layout.simple_spinner_item
+        );
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerEditUnit.setAdapter(adapter);
+    }
+
+    private void setupTextWatchers() {
+        TextWatcher textWatcher = new TextWatcher() {
+            @Override public void afterTextChanged(Editable s) { calculatePrice(); }
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+        };
+
+        etEditTotal.addTextChangedListener(textWatcher);
+        etEditQuantity.addTextChangedListener(textWatcher);
     }
 
     private void loadItemData() {
@@ -63,38 +96,31 @@ public class EditItemActivity extends AppCompatActivity {
         etEditTotal.setText(formatDecimal(total));
         String currency = intent.getStringExtra("CURRENCY");
         setCurrencySelection(currency);
+
+        String unit = intent.getStringExtra("UNIT");
+        setUnitSelection(unit);
+
         calculatePrice();
     }
 
     private void setCurrencySelection(String currency) {
         if (currency == null) return;
-        for (int i = 0; i < currencySpinner.getCount(); i++) {
-            if (currencySpinner.getItemAtPosition(i).toString().startsWith(currency)) {
-                currencySpinner.setSelection(i);
+        for (int i = 0; i < spinnerEditCurrency.getCount(); i++) {
+            if (spinnerEditCurrency.getItemAtPosition(i).toString().startsWith(currency)) {
+                spinnerEditCurrency.setSelection(i);
                 break;
             }
         }
     }
 
-    private void setupCurrencySpinner() {
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-                this,
-                R.array.currencies,
-                android.R.layout.simple_spinner_item
-        );
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        currencySpinner.setAdapter(adapter);
-    }
-
-    private void setupTextWatchers() {
-        TextWatcher textWatcher = new TextWatcher() {
-            @Override public void afterTextChanged(Editable s) { calculatePrice(); }
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
-        };
-
-        etEditTotal.addTextChangedListener(textWatcher);
-        etEditQuantity.addTextChangedListener(textWatcher);
+    private void setUnitSelection(String unit) {
+        if (unit == null) return;
+        for (int i = 0; i < spinnerEditUnit.getCount(); i++) {
+            if (spinnerEditUnit.getItemAtPosition(i).toString().equals(unit)) {
+                spinnerEditUnit.setSelection(i);
+                break;
+            }
+        }
     }
 
     private void calculatePrice() {
@@ -113,7 +139,8 @@ public class EditItemActivity extends AppCompatActivity {
 
         DatabaseHelper dbHelper = new DatabaseHelper(this);
         String newBarcode = etEditBarcode.getText().toString().trim();
-        String selectedCurrency = currencySpinner.getSelectedItem().toString().split(" ")[0];
+        String selectedCurrency = spinnerEditCurrency.getSelectedItem().toString().split(" ")[0];
+        String selectedUnit = spinnerEditUnit.getSelectedItem().toString();
 
         boolean success = dbHelper.updateItem(
                 originalBarcode,
@@ -122,7 +149,8 @@ public class EditItemActivity extends AppCompatActivity {
                 parseDoubleLocale(etEditPrice.getText().toString()),
                 Integer.parseInt(etEditQuantity.getText().toString()),
                 selectedCurrency,
-                parseDoubleLocale(etEditTotal.getText().toString())
+                parseDoubleLocale(etEditTotal.getText().toString()),
+                selectedUnit
         );
 
         if (success) {

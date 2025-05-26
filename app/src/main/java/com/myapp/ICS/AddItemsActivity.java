@@ -17,6 +17,7 @@ public class AddItemsActivity extends AppCompatActivity {
 
     private EditText itemName, itemBarcode, itemPrice, itemQuantity, itemTotal;
     private Spinner currencySpinner;
+    private Spinner spinnerUnit;
     private DatabaseHelper dbHelper;
 
     @Override
@@ -37,6 +38,9 @@ public class AddItemsActivity extends AppCompatActivity {
         itemPrice.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) formatEditTextToTwoDecimals(itemPrice);
         });
+
+        spinnerUnit = findViewById(R.id.spinnerUnit);
+        setupUnitSpinner();
     }
 
     private void initViews() {
@@ -48,7 +52,7 @@ public class AddItemsActivity extends AppCompatActivity {
         itemTotal.setEnabled(true);
         itemPrice.setEnabled(false);
         currencySpinner = findViewById(R.id.currencySpinner);
-
+        spinnerUnit = findViewById(R.id.spinnerUnit);
         Button saveButton = findViewById(R.id.saveButton);
         saveButton.setOnClickListener(v -> saveItemToDatabase());
 
@@ -61,6 +65,14 @@ public class AddItemsActivity extends AppCompatActivity {
                 this, R.array.currencies, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         currencySpinner.setAdapter(adapter);
+    }
+
+    private void setupUnitSpinner() {
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+                this, R.array.unit_types, android.R.layout.simple_spinner_item
+        );
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerUnit.setAdapter(adapter);
     }
 
     private void setupQuantityButtons() {
@@ -142,11 +154,18 @@ public class AddItemsActivity extends AppCompatActivity {
 
         String barcode = itemBarcode.getText().toString().trim();
         String selectedCurrency = currencySpinner.getSelectedItem().toString().split(" ")[0];
+        String unit = spinnerUnit.getSelectedItem().toString();
         Item found = dbHelper.getItemByBarcode(barcode);
 
-        if (found != null && !found.getCurrency().equals(selectedCurrency)) {
-            showError("Этот товар добавлен в валюте: " + found.getCurrency() + ". Добавлять в другой валюте нельзя!");
-            return;
+        if (found != null) {
+            if (!found.getCurrency().equals(selectedCurrency)) {
+                showError("Товар добавлен в валюте: " + found.getCurrency() + ". Добавлять в другой валюте нельзя!");
+                return;
+            }
+            if (!found.getUnit().equals(unit)) {
+                showError("Нужно выбрать единицей измерения: " + found.getUnit());
+                return;
+            }
         }
 
         boolean success = dbHelper.addItem(
@@ -155,7 +174,8 @@ public class AddItemsActivity extends AppCompatActivity {
                 parseDoubleLocale(itemPrice.getText().toString()),
                 getCurrentQuantity(),
                 selectedCurrency,
-                parseDoubleLocale(itemTotal.getText().toString())
+                parseDoubleLocale(itemTotal.getText().toString()),
+                unit
         );
         showResult(success);
     }

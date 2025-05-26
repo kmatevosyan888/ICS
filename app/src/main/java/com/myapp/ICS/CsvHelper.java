@@ -7,9 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
-
 import androidx.core.content.FileProvider;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -45,16 +43,18 @@ public class CsvHelper {
                  FileOutputStream fos = new FileOutputStream(file);
                  OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8")) {
 
-                osw.append("Barcode,Name,Price,Quantity,Currency,Total\n");
+                osw.append("Barcode,Name,Price,Quantity,Currency,Total,Unit\n");
 
                 while (cursor.moveToNext()) {
-                    osw.append(String.format(Locale.US, "%s,%s,%.2f,%d,%s,%.2f\n",
-                            cursor.getString(2),  // Barcode
+                    osw.append(String.format(Locale.US, "%s,%s,%.2f,%d,%s,%.2f,%s\n",
+                            cursor.getString(2),   // Barcode
                             cursor.getString(1),   // Name
                             cursor.getDouble(3),   // Price
                             cursor.getInt(4),      // Quantity
                             cursor.getString(5),   // Currency
-                            cursor.getDouble(6))); // Total
+                            cursor.getDouble(6),   // Total
+                            cursor.getString(7)    // Unit
+                    ));
                 }
             }
 
@@ -68,6 +68,7 @@ public class CsvHelper {
         }
     }
 
+    // Импорт ВСЕХ данных (включая unit)
     public int importFromCsv(Uri uri) {
         int importedCount = 0;
         SQLiteDatabase db = null;
@@ -78,7 +79,6 @@ public class CsvHelper {
             db.beginTransaction();
 
             try {
-                // Удаляем все существующие записи (НЕ вызываем dbHelper.deleteAllItems())
                 db.execSQL("DELETE FROM " + DatabaseHelper.TABLE_ITEMS);
 
                 String line;
@@ -92,7 +92,11 @@ public class CsvHelper {
                     }
 
                     String[] columns = line.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
-                    if (columns.length != 6) continue;
+                    // 7 столбцов: Barcode,Name,Price,Quantity,Currency,Total,Unit
+                    if (columns.length != 7) {
+                        Log.e(TAG, "Строка " + lineNumber + ": некорректное количество столбцов: " + columns.length);
+                        continue;
+                    }
 
                     try {
                         ContentValues values = new ContentValues();
@@ -102,6 +106,7 @@ public class CsvHelper {
                         values.put("quantity", Integer.parseInt(columns[3].trim()));
                         values.put("currency", columns[4].replace("\"", "").trim());
                         values.put("total", parseDoubleLocale(columns[5]));
+                        values.put("unit", columns[6].replace("\"", "").trim());
 
                         long id = db.insert(DatabaseHelper.TABLE_ITEMS, null, values);
                         if (id != -1) importedCount++;
@@ -129,6 +134,7 @@ public class CsvHelper {
     private double parseDoubleLocale(String str) {
         if (str == null) return 0.0;
         str = str.replace(",", ".").replaceAll("[^\\d.]", "");
+        if (str.isEmpty()) return 0.0;
         return Double.parseDouble(str);
     }
 }
